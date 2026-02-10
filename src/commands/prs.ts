@@ -1,10 +1,7 @@
-import { Octokit } from '@octokit/rest';
 import { parseArgs } from 'node:util';
 import { intro, outro, spinner } from '@clack/prompts';
-import { log, detectRepoFromGit } from '../utils';
+import { log, resolveRepo, listOpenPulls } from '../utils';
 import pc from 'picocolors';
-import { getTokenForOwner, hasAnyToken } from '../config.ts';
-import { addToken } from './add-token.ts';
 
 export async function prs(args: string[]) {
   const { values } = parseArgs({
@@ -26,57 +23,21 @@ Options:
     process.exit(0);
   }
 
-  const repo = values.repo ?? detectRepoFromGit();
-  if (!repo) {
-    log.error('Could not detect repository. Use --repo <owner/repo> or run from inside a git repo.');
-    process.exit(1);
-  }
+  const repo = await resolveRepo(values.repo);
 
-  const [owner, name] = repo.split('/');
-  if (!owner || !name) {
-    log.error('Invalid repo format. Expected: owner/repo');
-    process.exit(1);
-  }
+  intro(pc.bold(`Pull Requests - ${pc.cyan(repo.slug)}`));
 
-  let token = await getTokenForOwner(owner);
-  if (!token) {
-    if (await hasAnyToken()) {
-      log.error([
-        `No token found for owner '${owner}' and no default token configured.`,
-        pc.dim('Run: llm-toolkit add-token'),
-      ]);
-      process.exit(1);
-    }
-    log.warn('No GitHub API token configured.');
-    await addToken();
-    token = await getTokenForOwner(owner);
-    if (!token) {
-      log.error("Token was saved but doesn't match this owner. Run: llm-toolkit add-token");
-      process.exit(1);
-    }
-  }
-
-  intro(pc.bold(`Pull Requests - ${pc.cyan(repo)}`));
-
-  const octokit = new Octokit({ auth: token });
   const s = spinner();
 
   try {
     s.start('Fetching open pull requests');
 
-    const { data: pulls } = await octokit.rest.pulls.list({
-      owner,
-      repo: name,
-      state: 'open',
-      sort: 'updated',
-      direction: 'desc',
-      per_page: 30,
-    });
+    const pulls = await listOpenPulls(repo);
 
     s.stop('Fetched pull requests');
 
     if (pulls.length === 0) {
-      outro(`No open PRs in ${pc.cyan(repo)}`);
+      outro(`No open PRs in ${pc.cyan(repo.slug)}`);
       process.exit(0);
     }
 
