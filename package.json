@@ -5,13 +5,26 @@
   "bin": {
     "llm-toolkit": "cli.ts"
   },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
+  "scripts": {
+    "lint": "concurrently 'eslint .' 'tsc --noEmit'",
+    "lint:fix": "concurrently 'eslint . --fix' 'tsc --noEmit'"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/bun": "latest",
+    "concurrently": "^9.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^17.3.0",
+    "jiti": "^2.6.1",
+    "type-fest": "^5.4.4",
+    "typescript-eslint": "^8.47.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }

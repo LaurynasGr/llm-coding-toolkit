@@ -8,3 +8,9 @@ gh-login: ## Login to GitHub
 
 build: ## Compile into a standalone binary
 	bun build --compile cli.ts --outfile dist/llm-toolkit
+
+lint: ## Run linters
+	bun run lint
+
+lint-fix: ## Run linters and fix issues
+	bun run lint:fix

@@ -25,6 +25,12 @@
 - GitHub API client: `@octokit/rest`
 - Token storage: `~/.config/llm-coding-toolkit/config.json` with 0600 permissions, tokens mapped by owner/org
 
+## Linting
+
+- `make lint` — run ESLint and TypeScript type checking
+- `make lint-fix` — run ESLint with auto-fix and TypeScript type checking
+- Always run `make lint-fix` after making changes to fix types and ESLint issues
+
 ## Code style
 
 - No default exports — always use named exports
