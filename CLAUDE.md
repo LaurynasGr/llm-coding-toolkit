@@ -12,7 +12,9 @@
 
 - `cli.ts` — CLI entrypoint, command router (executable, shebang `#!/usr/bin/env bun`)
 - `src/config.ts` — GitHub token management (stored in `~/.config/llm-coding-toolkit/config.json`)
-- `src/utils.ts` — shared utilities (e.g. `detectRepoFromGit`)
+- `src/utils/` — shared utilities
+  - `git.ts` — git helpers (e.g. `detectRepoFromGit`)
+  - `log.ts` — logging helpers
 - `src/commands/` — command implementations
   - `prs.ts` — list open pull requests
   - `add-token.ts` — add a GitHub API token
@@ -23,6 +25,8 @@
 - Runtime: Bun (TypeScript executed directly)
 - Build: `make build` — compiles to standalone `dist/llm-toolkit` binary via `bun build --compile`
 - GitHub API client: `@octokit/rest`
+- Interactive prompts: `@clack/prompts`
+- Terminal colors: `picocolors`
 - Token storage: `~/.config/llm-coding-toolkit/config.json` with 0600 permissions, tokens mapped by owner/org
 
 ## Linting

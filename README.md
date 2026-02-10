@@ -34,6 +34,14 @@ llm-toolkit prs
 llm-toolkit prs --repo owner/repo
 ```
 
+## Stack
+
+- **Runtime**: [Bun](https://bun.sh) — TypeScript executed directly, no build step needed for dev
+- **GitHub API**: [`@octokit/rest`](https://github.com/octokit/rest.js)
+- **Interactive prompts**: [`@clack/prompts`](https://github.com/bombshell-dev/clack)
+- **Terminal colors**: [`picocolors`](https://github.com/alexeyraspopov/picocolors)
+- **Linting**: ESLint + Prettier + `typescript-eslint`
+
 ## Development
 
 ### Build
@@ -43,3 +51,10 @@ make build
 ```
 
 Compiles to a standalone binary at `dist/llm-toolkit`.
+
+### Lint
+
+```sh
+make lint        # check for issues
+make lint-fix    # auto-fix ESLint issues + type check
+```
