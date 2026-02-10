@@ -1,24 +1,26 @@
 #!/usr/bin/env bun
 
+import pc from 'picocolors';
+
 const COMMANDS: Record<string, string> = {
-  prs: "List open pull requests",
-  "add-token": "Add a GitHub API token",
-  "list-tokens": "List configured tokens",
+  prs: 'List open pull requests',
+  'add-token': 'Add a GitHub API token',
+  'list-tokens': 'List configured tokens',
 };
 
 function printUsage() {
-  console.log(`Usage: llm-toolkit <command> [options]
+  console.log(`Usage: ${pc.bold('llm-toolkit')} ${pc.dim('<command> [options]')}
 
 Commands:`);
   for (const [name, desc] of Object.entries(COMMANDS)) {
-    console.log(`  ${name.padEnd(16)} ${desc}`);
+    console.log(`  ${pc.bold(name.padEnd(16))} ${pc.dim(desc)}`);
   }
-  console.log(`\nRun 'llm-toolkit <command> --help' for command-specific options.`);
+  console.log(`\n${pc.dim("Run 'llm-toolkit <command> --help' for command-specific options.")}`);
 }
 
 const command = process.argv[2];
 
-if (!command || command === "--help" || command === "-h") {
+if (!command || command === '--help' || command === '-h') {
   printUsage();
   process.exit(0);
 }
@@ -26,23 +28,23 @@ if (!command || command === "--help" || command === "-h") {
 const commandArgs = process.argv.slice(3);
 
 switch (command) {
-  case "prs": {
-    const { prs } = await import("./src/commands/prs.ts");
+  case 'prs': {
+    const { prs } = await import('./src/commands/prs.ts');
     await prs(commandArgs);
     break;
   }
-  case "add-token": {
-    const { addToken } = await import("./src/commands/add-token.ts");
+  case 'add-token': {
+    const { addToken } = await import('./src/commands/add-token.ts');
     await addToken();
     break;
   }
-  case "list-tokens": {
-    const { listTokens } = await import("./src/commands/list-tokens.ts");
+  case 'list-tokens': {
+    const { listTokens } = await import('./src/commands/list-tokens.ts');
     await listTokens();
     break;
   }
   default:
-    console.error(`Unknown command: ${command}\n`);
+    console.error(pc.red(`Unknown command: ${command}\n`));
     printUsage();
     process.exit(1);
 }

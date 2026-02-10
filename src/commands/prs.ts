@@ -1,92 +1,110 @@
-import { Octokit } from "@octokit/rest";
-import { parseArgs } from "node:util";
-import { getTokenForOwner, hasAnyToken } from "../config.ts";
-import { detectRepoFromGit } from "../utils.ts";
-import { addToken } from "./add-token.ts";
+import { Octokit } from '@octokit/rest';
+import { parseArgs } from 'node:util';
+import { intro, outro, spinner } from '@clack/prompts';
+import { log, detectRepoFromGit } from '../utils';
+import pc from 'picocolors';
+import { getTokenForOwner, hasAnyToken } from '../config.ts';
+import { addToken } from './add-token.ts';
 
 export async function prs(args: string[]) {
   const { values } = parseArgs({
     args,
     options: {
-      repo: { type: "string", short: "r" },
-      help: { type: "boolean", short: "h" },
+      repo: { type: 'string', short: 'r' },
+      help: { type: 'boolean', short: 'h' },
     },
   });
 
   if (values.help) {
-    console.log(`Usage: llm-toolkit prs [options]
+    console.log(`Usage: ${pc.bold('llm-toolkit prs')} [options]
 
 List open pull requests for a GitHub repository.
 
 Options:
-  -r, --repo <owner/repo>  GitHub repository (default: detected from git remote)
-  -h, --help               Show this help message`);
+  ${pc.bold('-r, --repo')} ${pc.dim('<owner/repo>')}  GitHub repository (default: detected from git remote)
+  ${pc.bold('-h, --help')}               Show this help message`);
     process.exit(0);
   }
 
   const repo = values.repo ?? detectRepoFromGit();
   if (!repo) {
-    console.error("Could not detect repository. Use --repo <owner/repo> or run from inside a git repo.");
+    log.error('Could not detect repository. Use --repo <owner/repo> or run from inside a git repo.');
     process.exit(1);
   }
 
-  const [owner, name] = repo.split("/");
+  const [owner, name] = repo.split('/');
   if (!owner || !name) {
-    console.error("Invalid repo format. Expected: owner/repo");
+    log.error('Invalid repo format. Expected: owner/repo');
     process.exit(1);
   }
 
   let token = await getTokenForOwner(owner);
   if (!token) {
     if (await hasAnyToken()) {
-      console.error(`No token found for owner '${owner}' and no default token configured.`);
-      console.error("Run: llm-toolkit add-token");
+      log.error([
+        `No token found for owner '${owner}' and no default token configured.`,
+        pc.dim('Run: llm-toolkit add-token'),
+      ]);
       process.exit(1);
     }
-    console.log("No GitHub API token configured.\n");
+    log.warn('No GitHub API token configured.');
     await addToken();
     token = await getTokenForOwner(owner);
     if (!token) {
-      console.error("Token was saved but doesn't match this owner. Run: llm-toolkit add-token");
+      log.error("Token was saved but doesn't match this owner. Run: llm-toolkit add-token");
       process.exit(1);
     }
   }
 
+  intro(pc.bold(`Pull Requests - ${pc.cyan(repo)}`));
+
   const octokit = new Octokit({ auth: token });
+  const s = spinner();
 
   try {
+    s.start('Fetching open pull requests');
+
     const { data: pulls } = await octokit.rest.pulls.list({
       owner,
       repo: name,
-      state: "open",
-      sort: "updated",
-      direction: "desc",
+      state: 'open',
+      sort: 'updated',
+      direction: 'desc',
       per_page: 30,
     });
 
+    s.stop('Fetched pull requests');
+
     if (pulls.length === 0) {
-      console.log(`No open PRs in ${repo}`);
+      outro(`No open PRs in ${pc.cyan(repo)}`);
       process.exit(0);
     }
 
-    console.log(`\nOpen PRs in ${repo} (${pulls.length}):\n`);
+    log.message(pc.dim(`${pulls.length} open`));
 
     for (const pr of pulls) {
-      const draft = pr.draft ? " [DRAFT]" : "";
-      const labels = pr.labels.map((l) => l.name).join(", ");
-      const labelStr = labels ? ` (${labels})` : "";
-      console.log(`  #${pr.number} ${pr.title}${draft}${labelStr}`);
-      console.log(`    by ${pr.user?.login ?? "unknown"} · updated ${pr.updated_at}`);
-      console.log(`    ${pr.html_url}\n`);
+      const number = pc.yellow(`#${pr.number}`);
+      const title = pc.bold(pr.title);
+      const draft = pr.draft ? pc.dim(' [DRAFT]') : '';
+      const labels = pr.labels.map((l) => pc.magenta(l.name)).join(pc.dim(', '));
+      const labelStr = labels ? pc.dim(' (') + labels + pc.dim(')') : '';
+      const author = pc.dim(`by ${pr.user?.login ?? 'unknown'}`);
+      const updated = pc.dim(`updated ${pr.updated_at}`);
+      const url = pc.dim(pr.html_url);
+
+      log.message([`${number} ${title}${draft}${labelStr}`, `   ${author} · ${updated}`, `   ${url}`]);
     }
+
+    outro(pc.green('Done'));
   } catch (err: unknown) {
-    if (err instanceof Error && "status" in err && (err as { status: number }).status === 401) {
-      console.error("Authentication failed. Your token may be invalid or expired.");
-      console.error("Run: llm-toolkit add-token");
+    s.stop('Failed');
+
+    if (err instanceof Error && 'status' in err && (err as { status: number }).status === 401) {
+      log.error(['Authentication failed. Your token may be invalid or expired.', pc.dim('Run: llm-toolkit add-token')]);
       process.exit(1);
     }
-    if (err instanceof Error && "status" in err && (err as { status: number }).status === 404) {
-      console.error(`Repository '${repo}' not found (or you don't have access).`);
+    if (err instanceof Error && 'status' in err && (err as { status: number }).status === 404) {
+      log.error(`Repository '${repo}' not found (or you don't have access).`);
       process.exit(1);
     }
     throw err;

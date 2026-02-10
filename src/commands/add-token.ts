@@ -1,20 +1,43 @@
-import { readConfig, writeConfig, CONFIG_FILE } from "../config.ts";
+import { intro, outro, text, password, isCancel, cancel } from '@clack/prompts';
+import { log } from '../utils';
+import pc from 'picocolors';
+import { readConfig, writeConfig, CONFIG_FILE } from '../config.ts';
 
 export async function addToken() {
-  const owner = prompt("Owner/organization this token is for (press Enter to use as default):");
-  const key = owner?.trim() || "default";
+  intro(pc.bold('Add GitHub API Token'));
 
-  console.log("\nCreate a fine-grained token at: https://github.com/settings/personal-access-tokens/new");
-  console.log("Required permission: Pull Requests (read-only)\n");
+  const owner = await text({
+    message: 'Owner/organization this token is for',
+    placeholder: 'Press Enter to use as default',
+  });
 
-  const token = prompt("Enter your GitHub API token:");
-  if (!token?.trim()) {
-    console.error("No token provided. Aborted.");
-    process.exit(1);
+  if (isCancel(owner)) {
+    cancel('Token setup cancelled.');
+    process.exit(0);
+  }
+
+  const key = owner.trim() || 'default';
+
+  log.info([
+    `Create a fine-grained token at: ${pc.underline('https://github.com/settings/personal-access-tokens/new')}`,
+    `Required permission: ${pc.bold('Pull Requests')} (read-only)`,
+  ]);
+
+  const token = await password({
+    message: 'Enter your GitHub API token',
+    validate: (value) => {
+      if (!value?.trim()) return 'Token cannot be empty';
+    },
+  });
+
+  if (isCancel(token)) {
+    cancel('Token setup cancelled.');
+    process.exit(0);
   }
 
   const config = await readConfig();
   config.tokens[key] = token.trim();
   await writeConfig(config);
-  console.log(`Token saved for '${key}' in ${CONFIG_FILE}`);
+
+  outro(pc.green(`Token saved for '${key}' in ${CONFIG_FILE}`));
 }

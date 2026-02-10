@@ -1,9 +1,9 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import { homedir } from "node:os";
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { homedir } from 'node:os';
 
-const CONFIG_DIR = join(homedir(), ".config", "llm-coding-toolkit");
-export const CONFIG_FILE = join(CONFIG_DIR, "config.json");
+const CONFIG_DIR = join(homedir(), '.config', 'llm-coding-toolkit');
+export const CONFIG_FILE = join(CONFIG_DIR, 'config.json');
 
 export interface Config {
   tokens: Record<string, string>; // owner/org -> token
@@ -11,7 +11,7 @@ export interface Config {
 
 export async function readConfig(): Promise<Config> {
   try {
-    const data = await readFile(CONFIG_FILE, "utf-8");
+    const data = await readFile(CONFIG_FILE, 'utf-8');
     return JSON.parse(data) as Config;
   } catch {
     return { tokens: {} };
@@ -25,7 +25,7 @@ export async function writeConfig(config: Config): Promise<void> {
 
 export async function getTokenForOwner(owner: string): Promise<string | null> {
   const config = await readConfig();
-  return config.tokens[owner] ?? config.tokens["default"] ?? null;
+  return config.tokens[owner] ?? config.tokens['default'] ?? null;
 }
 
 export async function hasAnyToken(): Promise<boolean> {
