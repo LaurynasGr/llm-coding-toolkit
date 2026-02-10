@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 import type { components } from "@octokit/openapi-types";
 import { Octokit } from "@octokit/rest";
 import { env } from "./env";
