@@ -5,3 +5,6 @@ help:
 
 gh-login: ## Login to GitHub
 	gh auth login
+
+build: ## Compile into a standalone binary
+	bun build --compile cli.ts --outfile dist/llm-toolkit

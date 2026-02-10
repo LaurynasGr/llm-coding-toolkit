@@ -1,0 +1,30 @@
+# LLM Coding Toolkit
+
+## Running
+
+- `./cli.ts` — runs the CLI
+- Commands: `./cli.ts <command> [options]`
+  - `prs` — list open PRs (`--repo owner/repo` or auto-detect from git remote)
+  - `add-token` — add a GitHub API token for an owner/org
+  - `list-tokens` — list configured tokens
+
+## Project structure
+
+- `cli.ts` — CLI entrypoint, command router (executable, shebang `#!/usr/bin/env bun`)
+- `src/config.ts` — GitHub token management (stored in `~/.config/llm-coding-toolkit/config.json`)
+- `src/utils.ts` — shared utilities (e.g. `detectRepoFromGit`)
+- `src/commands/` — command implementations
+  - `prs.ts` — list open pull requests
+  - `add-token.ts` — add a GitHub API token
+  - `list-tokens.ts` — list configured tokens
+
+## Key details
+
+- Runtime: Bun (TypeScript executed directly)
+- Build: `make build` — compiles to standalone `dist/llm-toolkit` binary via `bun build --compile`
+- GitHub API client: `@octokit/rest`
+- Token storage: `~/.config/llm-coding-toolkit/config.json` with 0600 permissions, tokens mapped by owner/org
+
+## Code style
+
+- No default exports — always use named exports
