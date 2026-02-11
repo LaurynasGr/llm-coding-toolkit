@@ -78,3 +78,79 @@ export async function listOpenPulls(repo: ResolvedRepo) {
   });
   return data;
 }
+
+export interface ReviewComment {
+  path: string;
+  startLine: number | null;
+  line: number | null;
+  body: string;
+  author: string;
+}
+
+interface GraphQLReviewThreadsResponse {
+  repository: {
+    pullRequest: {
+      reviewThreads: {
+        nodes: Array<{
+          isResolved: boolean;
+          comments: {
+            nodes: Array<{
+              body: string;
+              path: string;
+              startLine: number | null;
+              line: number | null;
+              author: { login: string } | null;
+            }>;
+          };
+        }>;
+      };
+    };
+  };
+}
+
+export async function listUnresolvedReviewComments(repo: ResolvedRepo, prNumber: number): Promise<ReviewComment[]> {
+  const octokit = createOctokit(repo.token);
+
+  const query = `
+    query($owner: String!, $repo: String!, $number: Int!) {
+      repository(owner: $owner, name: $repo) {
+        pullRequest(number: $number) {
+          reviewThreads(first: 100) {
+            nodes {
+              isResolved
+              comments(first: 1) {
+                nodes {
+                  body
+                  path
+                  startLine
+                  line
+                  author { login }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const result = await octokit.graphql<GraphQLReviewThreadsResponse>(query, {
+    owner: repo.owner,
+    repo: repo.name,
+    number: prNumber,
+  });
+
+  const threads = result.repository.pullRequest.reviewThreads.nodes;
+
+  return threads
+    .filter((thread) => !thread.isResolved)
+    .flatMap((thread) =>
+      thread.comments.nodes.map((comment) => ({
+        path: comment.path,
+        startLine: comment.startLine,
+        line: comment.line,
+        body: comment.body,
+        author: comment.author?.login ?? 'unknown',
+      })),
+    );
+}

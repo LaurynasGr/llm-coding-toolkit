@@ -3,6 +3,7 @@
 import pc from 'picocolors';
 
 const COMMANDS: Record<string, string> = {
+  'review-comments': 'Collect unresolved PR review comments for an LLM agent',
   prs: 'List open pull requests',
   'add-token': 'Add a GitHub API token',
   'list-tokens': 'List configured tokens',
@@ -28,6 +29,11 @@ if (!command || command === '--help' || command === '-h') {
 const commandArgs = process.argv.slice(3);
 
 switch (command) {
+  case 'review-comments': {
+    const { reviewComments } = await import('./src/commands/review-comments.ts');
+    await reviewComments(commandArgs);
+    break;
+  }
   case 'prs': {
     const { prs } = await import('./src/commands/prs.ts');
     await prs(commandArgs);

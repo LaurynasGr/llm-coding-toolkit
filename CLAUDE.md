@@ -4,6 +4,7 @@
 
 - `./cli.ts` — runs the CLI
 - Commands: `./cli.ts <command> [options]`
+  - `review-comments` — collect unresolved PR review comments into a markdown file for an LLM agent (`--repo owner/repo` or auto-detect)
   - `prs` — list open PRs (`--repo owner/repo` or auto-detect from git remote)
   - `add-token` — add a GitHub API token for an owner/org
   - `list-tokens` — list configured tokens
@@ -16,6 +17,7 @@
   - `git.ts` — git helpers (e.g. `detectRepoFromGit`)
   - `log.ts` — logging helpers
 - `src/commands/` — command implementations
+  - `review-comments.ts` — collect unresolved PR review comments into markdown
   - `prs.ts` — list open pull requests
   - `add-token.ts` — add a GitHub API token
   - `list-tokens.ts` — list configured tokens
@@ -24,7 +26,7 @@
 
 - Runtime: Bun (TypeScript executed directly)
 - Build: `make build` — compiles to standalone `dist/llm-toolkit` binary via `bun build --compile`
-- GitHub API client: `@octokit/rest`
+- GitHub API client: `@octokit/rest` (REST) + `octokit.graphql` (GraphQL for review threads)
 - Interactive prompts: `@clack/prompts`
 - Terminal colors: `picocolors`
 - Token storage: `~/.config/llm-coding-toolkit/config.json` with 0600 permissions, tokens mapped by owner/org
