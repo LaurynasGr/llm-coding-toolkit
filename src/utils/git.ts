@@ -79,12 +79,16 @@ export async function listOpenPulls(repo: ResolvedRepo) {
   return data;
 }
 
-export interface ReviewComment {
+export interface ThreadComment {
+  body: string;
+  author: string;
+}
+
+export interface ReviewThread {
   path: string;
   startLine: number | null;
   line: number | null;
-  body: string;
-  author: string;
+  comments: ThreadComment[];
 }
 
 interface GraphQLReviewThread {
@@ -114,7 +118,7 @@ interface GraphQLReviewThreadsResponse {
   };
 }
 
-export async function listUnresolvedReviewComments(repo: ResolvedRepo, prNumber: number): Promise<ReviewComment[]> {
+export async function listUnresolvedReviewThreads(repo: ResolvedRepo, prNumber: number): Promise<ReviewThread[]> {
   const octokit = createOctokit(repo.token);
 
   const query = `
@@ -128,7 +132,7 @@ export async function listUnresolvedReviewComments(repo: ResolvedRepo, prNumber:
             }
             nodes {
               isResolved
-              comments(last: 1) {
+              comments(first: 100) {
                 nodes {
                   body
                   path
@@ -163,14 +167,21 @@ export async function listUnresolvedReviewComments(repo: ResolvedRepo, prNumber:
   } while (cursor);
 
   return allThreads
-    .filter((thread) => !thread.isResolved)
-    .flatMap((thread) =>
-      thread.comments.nodes.filter(Boolean).map((comment) => ({
-        path: comment.path,
-        startLine: comment.startLine,
-        line: comment.line,
-        body: comment.body,
-        author: comment.author?.login ?? 'unknown',
-      })),
-    );
+    .filter((thread) => !thread.isResolved && thread.comments.nodes.some(Boolean))
+    .map((thread) => {
+      const nodes = thread.comments.nodes.filter(Boolean);
+      const first = nodes[0];
+      if (!first) {
+        throw new Error('Review thread has no comments (this should not happen)');
+      }
+      return {
+        path: first.path,
+        startLine: first.startLine,
+        line: first.line,
+        comments: nodes.map((c) => ({
+          body: c.body,
+          author: c.author?.login ?? 'unknown',
+        })),
+      };
+    });
 }

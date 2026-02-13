@@ -3,8 +3,8 @@ import { mkdir, readFile, writeFile, appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { intro, outro, spinner, select, isCancel } from '@clack/prompts';
 import pc from 'picocolors';
-import { log, resolveRepo, listOpenPulls, listUnresolvedReviewComments, detectRepoFromGit } from '../utils';
-import type { ReviewComment } from '../utils/git.ts';
+import { log, resolveRepo, listOpenPulls, listUnresolvedReviewThreads, detectRepoFromGit } from '../utils';
+import type { ReviewThread } from '../utils/git.ts';
 
 function slugify(text: string): string {
   return text
@@ -14,14 +14,14 @@ function slugify(text: string): string {
     .slice(0, 80);
 }
 
-function formatLineRef(comment: ReviewComment): string {
-  if (comment.startLine && comment.line && comment.startLine !== comment.line) {
-    return `${comment.path}:${comment.startLine}-${comment.line}`;
+function formatLineRef(thread: Pick<ReviewThread, 'path' | 'startLine' | 'line'>): string {
+  if (thread.startLine && thread.line && thread.startLine !== thread.line) {
+    return `${thread.path}:${thread.startLine}-${thread.line}`;
   }
-  if (comment.line) {
-    return `${comment.path}:${comment.line}`;
+  if (thread.line) {
+    return `${thread.path}:${thread.line}`;
   }
-  return comment.path;
+  return thread.path;
 }
 
 async function ensureGitignored(entry: string): Promise<void> {
@@ -67,22 +67,28 @@ function sanitizeBody(body: string): string {
   return protected_.replace(/%%CODE_(\d+)%%/g, (_, i) => preserved[Number(i)] ?? '');
 }
 
-function generateMarkdown(comments: ReviewComment[]): string {
+function generateMarkdown(threads: ReviewThread[]): string {
   const lines = [
     'Below are comments from other agents that have reviewed the code changes.',
     'If they are valid, fix them. Otherwise, ignore them and let me know why.',
     '',
   ];
 
-  for (const comment of comments) {
-    lines.push(`- @${formatLineRef(comment)}`);
+  for (const thread of threads) {
+    lines.push(`- @${formatLineRef(thread)}`);
     lines.push('');
-    const indented = sanitizeBody(comment.body)
-      .split('\n')
-      .map((l) => `  ${l}`)
-      .join('\n');
-    lines.push(indented);
-    lines.push('');
+    for (const comment of thread.comments) {
+      const body = sanitizeBody(comment.body);
+      if (thread.comments.length > 1) {
+        lines.push(`  **${comment.author}:**`);
+      }
+      const indented = body
+        .split('\n')
+        .map((l) => `  ${l}`)
+        .join('\n');
+      lines.push(indented);
+      lines.push('');
+    }
   }
 
   return lines.join('\n').trimEnd() + '\n';
@@ -152,16 +158,19 @@ Options:
       selectedPR = found;
     }
 
-    s.start('Fetching unresolved review comments');
-    const comments = await listUnresolvedReviewComments(repo, selectedPR.number);
-    s.stop('Fetched review comments');
+    s.start('Fetching unresolved review threads');
+    const threads = await listUnresolvedReviewThreads(repo, selectedPR.number);
+    s.stop('Fetched review threads');
 
-    if (comments.length === 0) {
+    if (threads.length === 0) {
       outro(`No unresolved review comments on PR ${pc.yellow(`#${selectedPR.number}`)}`);
       process.exit(0);
     }
 
-    log.info(`Found ${pc.bold(String(comments.length))} unresolved comment(s)`);
+    const commentCount = threads.reduce((sum, t) => sum + t.comments.length, 0);
+    log.info(
+      `Found ${pc.bold(String(commentCount))} unresolved comment(s) across ${pc.bold(String(threads.length))} thread(s)`,
+    );
 
     const baseDir = '.llm-coding-toolkit';
     const prSlug = slugify(`${selectedPR.number}-${selectedPR.title}`);
@@ -173,7 +182,7 @@ Options:
     if (detectRepoFromGit()) {
       await ensureGitignored(baseDir);
     }
-    await writeFile(filePath, generateMarkdown(comments));
+    await writeFile(filePath, generateMarkdown(threads));
 
     log.success(`Written to ${pc.bold(filePath)}`);
     outro(pc.green('Done'));
