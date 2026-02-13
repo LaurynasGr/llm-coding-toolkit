@@ -1,5 +1,14 @@
 # LLM Coding Toolkit
 
+Instructions for AI agents working on this codebase.
+
+## General rules
+
+- Do not include any code snippets in your "Here's what I did" summaries once you're finished with a task
+- Do not use `-C <path>` with git commands - just run `git` directly (the working directory is already correct)
+- When learning useful conventions or patterns from our interactions, add them to this CLAUDE.md file (not to the memory directory)
+
+
 ## Running
 
 - `./cli.ts` — runs the CLI
