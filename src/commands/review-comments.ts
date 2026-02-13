@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile, appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { intro, outro, spinner, select, isCancel } from '@clack/prompts';
 import pc from 'picocolors';
-import { log, resolveRepo, listOpenPulls, listUnresolvedReviewComments } from '../utils';
+import { log, resolveRepo, listOpenPulls, listUnresolvedReviewComments, detectRepoFromGit } from '../utils';
 import type { ReviewComment } from '../utils/git.ts';
 
 function slugify(text: string): string {
@@ -53,8 +53,8 @@ function sanitizeBody(body: string): string {
     .replace(/<!--[\s\S]*?-->/g, '')
     // strip "Additional Locations" section and everything after it (review bot appendix)
     .replace(/Additional Locations \(\d+\)[\s\S]*$/g, '')
-    // strip markdown links to github blob URLs
-    .replace(/\[.*?\]\(https:\/\/github\.com\/[^)]+\)/g, '')
+    // strip markdown links to github blob URLs (bot-generated file references)
+    .replace(/\[.*?\]\(https:\/\/github\.com\/[^)]*\/blob\/[^)]+\)/g, '')
     // strip bot HTML tags (details, summary, p, a, picture, source, img, br, hr)
     .replace(/<\/?(details|summary|p|a|picture|source|img|br|hr)\b[^>]*>/gi, '')
     // strip &nbsp; entities
@@ -170,7 +170,9 @@ Options:
     const filePath = join(dirPath, `${timestamp}.md`);
 
     await mkdir(dirPath, { recursive: true });
-    await ensureGitignored(baseDir);
+    if (detectRepoFromGit()) {
+      await ensureGitignored(baseDir);
+    }
     await writeFile(filePath, generateMarkdown(comments));
 
     log.success(`Written to ${pc.bold(filePath)}`);

@@ -87,22 +87,28 @@ export interface ReviewComment {
   author: string;
 }
 
+interface GraphQLReviewThread {
+  isResolved: boolean;
+  comments: {
+    nodes: Array<{
+      body: string;
+      path: string;
+      startLine: number | null;
+      line: number | null;
+      author: { login: string } | null;
+    } | null>;
+  };
+}
+
 interface GraphQLReviewThreadsResponse {
   repository: {
     pullRequest: {
       reviewThreads: {
-        nodes: Array<{
-          isResolved: boolean;
-          comments: {
-            nodes: Array<{
-              body: string;
-              path: string;
-              startLine: number | null;
-              line: number | null;
-              author: { login: string } | null;
-            }>;
-          };
-        }>;
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string | null;
+        };
+        nodes: Array<GraphQLReviewThread | null>;
       };
     };
   };
@@ -112,13 +118,17 @@ export async function listUnresolvedReviewComments(repo: ResolvedRepo, prNumber:
   const octokit = createOctokit(repo.token);
 
   const query = `
-    query($owner: String!, $repo: String!, $number: Int!) {
+    query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
       repository(owner: $owner, name: $repo) {
         pullRequest(number: $number) {
-          reviewThreads(first: 100) {
+          reviewThreads(first: 100, after: $cursor) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
             nodes {
               isResolved
-              comments(first: 1) {
+              comments(last: 1) {
                 nodes {
                   body
                   path
@@ -134,18 +144,28 @@ export async function listUnresolvedReviewComments(repo: ResolvedRepo, prNumber:
     }
   `;
 
-  const result = await octokit.graphql<GraphQLReviewThreadsResponse>(query, {
-    owner: repo.owner,
-    repo: repo.name,
-    number: prNumber,
-  });
+  const allThreads: GraphQLReviewThread[] = [];
+  let cursor: string | null = null;
 
-  const threads = result.repository.pullRequest.reviewThreads.nodes;
+  do {
+    const result: GraphQLReviewThreadsResponse = await octokit.graphql(query, {
+      owner: repo.owner,
+      repo: repo.name,
+      number: prNumber,
+      cursor,
+    });
 
-  return threads
+    const { nodes, pageInfo } = result.repository.pullRequest.reviewThreads;
+    for (const node of nodes) {
+      if (node) allThreads.push(node);
+    }
+    cursor = pageInfo.hasNextPage ? pageInfo.endCursor : null;
+  } while (cursor);
+
+  return allThreads
     .filter((thread) => !thread.isResolved)
     .flatMap((thread) =>
-      thread.comments.nodes.map((comment) => ({
+      thread.comments.nodes.filter(Boolean).map((comment) => ({
         path: comment.path,
         startLine: comment.startLine,
         line: comment.line,
