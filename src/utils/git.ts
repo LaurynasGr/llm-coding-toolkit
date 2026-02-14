@@ -78,3 +78,110 @@ export async function listOpenPulls(repo: ResolvedRepo) {
   });
   return data;
 }
+
+export interface ThreadComment {
+  body: string;
+  author: string;
+}
+
+export interface ReviewThread {
+  path: string;
+  startLine: number | null;
+  line: number | null;
+  comments: ThreadComment[];
+}
+
+interface GraphQLReviewThread {
+  isResolved: boolean;
+  comments: {
+    nodes: Array<{
+      body: string;
+      path: string;
+      startLine: number | null;
+      line: number | null;
+      author: { login: string } | null;
+    } | null>;
+  };
+}
+
+interface GraphQLReviewThreadsResponse {
+  repository: {
+    pullRequest: {
+      reviewThreads: {
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string | null;
+        };
+        nodes: Array<GraphQLReviewThread | null>;
+      };
+    };
+  };
+}
+
+export async function listUnresolvedReviewThreads(repo: ResolvedRepo, prNumber: number): Promise<ReviewThread[]> {
+  const octokit = createOctokit(repo.token);
+
+  const query = `
+    query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
+      repository(owner: $owner, name: $repo) {
+        pullRequest(number: $number) {
+          reviewThreads(first: 100, after: $cursor) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            nodes {
+              isResolved
+              comments(first: 100) {
+                nodes {
+                  body
+                  path
+                  startLine
+                  line
+                  author { login }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const allThreads: GraphQLReviewThread[] = [];
+  let cursor: string | null = null;
+
+  do {
+    const result: GraphQLReviewThreadsResponse = await octokit.graphql(query, {
+      owner: repo.owner,
+      repo: repo.name,
+      number: prNumber,
+      cursor,
+    });
+
+    const { nodes, pageInfo } = result.repository.pullRequest.reviewThreads;
+    for (const node of nodes) {
+      if (node) allThreads.push(node);
+    }
+    cursor = pageInfo.hasNextPage ? pageInfo.endCursor : null;
+  } while (cursor);
+
+  return allThreads
+    .filter((thread) => !thread.isResolved && thread.comments.nodes.some(Boolean))
+    .map((thread) => {
+      const nodes = thread.comments.nodes.filter(Boolean);
+      const first = nodes[0];
+      if (!first) {
+        throw new Error('Review thread has no comments (this should not happen)');
+      }
+      return {
+        path: first.path,
+        startLine: first.startLine,
+        line: first.line,
+        comments: nodes.map((c) => ({
+          body: c.body,
+          author: c.author?.login ?? 'unknown',
+        })),
+      };
+    });
+}
