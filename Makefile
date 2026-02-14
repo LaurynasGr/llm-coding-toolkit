@@ -7,7 +7,7 @@ gh-login: ## Login to GitHub
 	gh auth login
 
 build: ## Bundle CLI for Node
-	bun build cli.ts --target node --outfile dist/cli.mjs
+	bun run build
 
 lint: ## Run linters
 	bun run lint

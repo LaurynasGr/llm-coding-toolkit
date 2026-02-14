@@ -33,7 +33,7 @@ jobs:
 
       - name: Build
         if: steps.version-check.outputs.publish == 'true'
-        run: make build
+        run: bun run build
 
       - name: Publish
         if: steps.version-check.outputs.publish == 'true'

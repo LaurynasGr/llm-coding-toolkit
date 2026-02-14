@@ -10,6 +10,7 @@
     "dist"
   ],
   "scripts": {
+    "build": "bun build cli.ts --target node --outfile dist/cli.mjs",
     "lint": "concurrently 'eslint .' 'tsc --noEmit'",
     "lint:fix": "concurrently 'eslint . --fix' 'tsc --noEmit'"
   },
