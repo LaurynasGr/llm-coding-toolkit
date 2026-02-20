@@ -79,9 +79,7 @@ function generateMarkdown(threads: ReviewThread[]): string {
     lines.push('');
     for (const comment of thread.comments) {
       const body = sanitizeBody(comment.body);
-      if (thread.comments.length > 1) {
-        lines.push(`  **${comment.author}:**`);
-      }
+      lines.push(`  **${comment.author}:**`);
       const indented = body
         .split('\n')
         .map((l) => `  ${l}`)
