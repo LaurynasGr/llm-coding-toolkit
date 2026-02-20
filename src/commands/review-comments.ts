@@ -43,7 +43,7 @@ async function ensureGitignored(repoRoot: string, entry: string): Promise<void> 
 function sanitizeBody(body: string): string {
   // protect backtick-wrapped content (code blocks and inline code) from HTML stripping
   const preserved: string[] = [];
-  let sanitized = body.replace(/```[\s\S]*?```|`[^`]+`/g, (match) => {
+  let sanitized = body.replace(/```[\s\S]*?```|`[^`]*`/g, (match) => {
     preserved.push(match);
     return `%%CODE_${preserved.length - 1}%%`;
   });
