@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "llm-coding-toolkit": "dist/cli.mjs",
     "llmct": "dist/cli.mjs"
   },
   "files": [
