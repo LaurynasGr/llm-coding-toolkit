@@ -1,14 +1,7 @@
 #!/usr/bin/env node
 
 import pc from 'picocolors';
-
-const COMMANDS: Record<string, string> = {
-  'review-comments': 'Collect unresolved PR review comments for an LLM agent',
-  prs: 'List open pull requests',
-  'add-token': 'Add a GitHub API token',
-  'list-tokens': 'List configured tokens',
-  autocomplete: 'Install shell autocomplete for llmct',
-};
+import { COMMANDS } from './src/commands.ts';
 
 function printUsage() {
   console.log(`Usage: ${pc.bold('llmct')} ${pc.dim('<command> [options]')}

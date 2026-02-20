@@ -17,10 +17,12 @@ Instructions for AI agents working on this codebase.
   - `prs` — list open PRs (`--repo owner/repo` or auto-detect from git remote)
   - `add-token` — add a GitHub API token (default token or owner/org-scoped token)
   - `list-tokens` — list configured tokens
+  - `autocomplete` — install shell autocomplete for `llmct`
 
 ## Project structure
 
 - `cli.ts` — CLI entrypoint, command router (executable)
+- `src/commands.ts` — shared `COMMANDS` record (name → description), used by CLI and autocomplete
 - `src/config.ts` — GitHub token management (stored in `~/.config/llm-coding-toolkit/config.json`)
 - `src/utils/` — shared utilities
   - `git.ts` — git helpers (e.g. `detectRepoFromGit`)
@@ -30,6 +32,7 @@ Instructions for AI agents working on this codebase.
   - `prs.ts` — list open pull requests
   - `add-token.ts` — add a GitHub API token
   - `list-tokens.ts` — list configured tokens
+  - `autocomplete.ts` — install shell autocomplete (zsh/bash/fish)
 
 ## Key details
 
