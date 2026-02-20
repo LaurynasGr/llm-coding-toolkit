@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 import { intro, outro, spinner } from '@clack/prompts';
-import { log, resolveRepo, listOpenPulls } from '../utils';
+import { log, resolveRepo, listOpenPulls } from '../utils/index.ts';
 import pc from 'picocolors';
 
 export async function prs(args: string[]) {

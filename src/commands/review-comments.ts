@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile, appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { intro, outro, spinner, select, isCancel } from '@clack/prompts';
 import pc from 'picocolors';
-import { log, resolveRepo, listOpenPulls, listUnresolvedReviewThreads, detectRepoRoot } from '../utils';
+import { log, resolveRepo, listOpenPulls, listUnresolvedReviewThreads, detectRepoRoot } from '../utils/index.ts';
 import type { ReviewThread } from '../utils/git.ts';
 
 function slugify(text: string): string {
@@ -131,7 +131,7 @@ Options:
     let selectedPR: (typeof pulls)[number];
 
     if (pulls.length === 1) {
-      selectedPR = pulls[0] as (typeof pulls)[number];
+      selectedPR = pulls[0]!;
       log.info(`Using PR ${pc.yellow(`#${selectedPR.number}`)} ${pc.bold(selectedPR.title)}`);
     } else {
       const choice = await select({
