@@ -1,5 +1,5 @@
 import { intro, outro, text, password, isCancel, cancel } from '@clack/prompts';
-import { log } from '../utils';
+import { log } from '../utils/index.ts';
 import pc from 'picocolors';
 import { readConfig, writeConfig, CONFIG_FILE } from '../config.ts';
 

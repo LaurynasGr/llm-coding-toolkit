@@ -1,19 +1,36 @@
 {
   "name": "llm-coding-toolkit",
-  "module": "cli.ts",
+  "version": "0.1.0",
+  "description": "CLI toolkit for developers using LLM coding agents",
+  "keywords": [
+    "llm",
+    "cli",
+    "github",
+    "code-review",
+    "developer-tools"
+  ],
+  "author": "Laurynas Grigutis",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaurynasGr/llm-coding-toolkit.git"
+  },
   "type": "module",
   "bin": {
-    "llm-toolkit": "cli.ts"
+    "llmct": "dist/cli.mjs"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "bun build cli.ts --target node --outfile dist/cli.mjs",
     "lint": "concurrently 'eslint .' 'tsc --noEmit'",
     "lint:fix": "concurrently 'eslint . --fix' 'tsc --noEmit'"
   },
-  "dependencies": {
-    "@octokit/rest": "^22.0.1"
-  },
   "devDependencies": {
+    "@clack/prompts": "^1.0.0",
     "@eslint/js": "^10.0.1",
+    "@total-typescript/ts-reset": "^0.6.1",
     "@types/bun": "latest",
     "concurrently": "^9.2.1",
     "eslint-config-prettier": "^10.1.8",
@@ -21,10 +38,9 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^17.3.0",
     "jiti": "^2.6.1",
+    "@octokit/rest": "^22.0.1",
+    "picocolors": "^1.1.1",
     "type-fest": "^5.4.4",
     "typescript-eslint": "^8.47.0"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
   }
 }

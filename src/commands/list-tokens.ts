@@ -1,5 +1,5 @@
 import { intro, outro } from '@clack/prompts';
-import { log } from '../utils';
+import { log } from '../utils/index.ts';
 import pc from 'picocolors';
 import { readConfig } from '../config.ts';
 
@@ -8,7 +8,7 @@ export async function listTokens() {
   const owners = Object.keys(config.tokens);
 
   if (owners.length === 0) {
-    log.warn(`No tokens configured. Run: ${pc.bold('llm-toolkit add-token')}`);
+    log.warn(`No tokens configured. Run: ${pc.bold('llmct add-token')}`);
     return;
   }
 
