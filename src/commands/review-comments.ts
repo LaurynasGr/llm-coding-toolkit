@@ -43,12 +43,12 @@ async function ensureGitignored(repoRoot: string, entry: string): Promise<void> 
 function sanitizeBody(body: string): string {
   // protect backtick-wrapped content (code blocks and inline code) from HTML stripping
   const preserved: string[] = [];
-  let protected_ = body.replace(/```[\s\S]*?```|`[^`]+`/g, (match) => {
+  let sanitized = body.replace(/```[\s\S]*?```|`[^`]+`/g, (match) => {
     preserved.push(match);
     return `%%CODE_${preserved.length - 1}%%`;
   });
 
-  protected_ = protected_
+  sanitized = sanitized
     // strip HTML comments (<!-- ... -->, potentially multiline)
     .replace(/<!--[\s\S]*?-->/g, '')
     // strip "Additional Locations" section and everything after it (review bot appendix)
@@ -64,7 +64,7 @@ function sanitizeBody(body: string): string {
     .trim();
 
   // restore backtick-wrapped content
-  return protected_.replace(/%%CODE_(\d+)%%/g, (_, i) => preserved[Number(i)] ?? '');
+  return sanitized.replace(/%%CODE_(\d+)%%/g, (_, i) => preserved[Number(i)] ?? '');
 }
 
 function generateMarkdown(threads: ReviewThread[]): string {
