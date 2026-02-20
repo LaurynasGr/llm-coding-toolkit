@@ -4,6 +4,14 @@ import pc from 'picocolors';
 import { getTokenForOwner, hasAnyToken } from '../config.ts';
 import { log } from './log.ts';
 
+export function detectRepoRoot(): string | null {
+  try {
+    return execSync('git rev-parse --show-toplevel', { encoding: 'utf-8' }).trim();
+  } catch {
+    return null;
+  }
+}
+
 export function detectRepoFromGit(): string | null {
   try {
     const url = execSync('git remote get-url origin', { encoding: 'utf-8' }).trim();

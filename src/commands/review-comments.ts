@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile, appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { intro, outro, spinner, select, isCancel } from '@clack/prompts';
 import pc from 'picocolors';
-import { log, resolveRepo, listOpenPulls, listUnresolvedReviewThreads, detectRepoFromGit } from '../utils';
+import { log, resolveRepo, listOpenPulls, listUnresolvedReviewThreads, detectRepoRoot } from '../utils';
 import type { ReviewThread } from '../utils/git.ts';
 
 function slugify(text: string): string {
@@ -24,8 +24,8 @@ function formatLineRef(thread: Pick<ReviewThread, 'path' | 'startLine' | 'line'>
   return thread.path;
 }
 
-async function ensureGitignored(entry: string): Promise<void> {
-  const gitignorePath = '.gitignore';
+async function ensureGitignored(repoRoot: string, entry: string): Promise<void> {
+  const gitignorePath = join(repoRoot, '.gitignore');
   let content = '';
   try {
     content = await readFile(gitignorePath, 'utf-8');
@@ -173,14 +173,16 @@ Options:
     );
 
     const baseDir = '.llm-coding-toolkit';
+    const repoRoot = detectRepoRoot();
     const prSlug = slugify(`${selectedPR.number}-${selectedPR.title}`);
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const dirPath = join(baseDir, 'agent-reviews', prSlug);
+    const llmCTPath = join(baseDir, 'agent-reviews', prSlug);
+    const dirPath = repoRoot ? join(repoRoot, llmCTPath) : llmCTPath;
     const filePath = join(dirPath, `${timestamp}.md`);
 
     await mkdir(dirPath, { recursive: true });
-    if (detectRepoFromGit()) {
-      await ensureGitignored(baseDir);
+    if (repoRoot) {
+      await ensureGitignored(repoRoot, baseDir);
     }
     await writeFile(filePath, generateMarkdown(threads));
 
