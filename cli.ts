@@ -10,13 +10,13 @@ const COMMANDS: Record<string, string> = {
 };
 
 function printUsage() {
-  console.log(`Usage: ${pc.bold('llm-toolkit')} ${pc.dim('<command> [options]')}
+  console.log(`Usage: ${pc.bold('llmct')} ${pc.dim('<command> [options]')}
 
 Commands:`);
   for (const [name, desc] of Object.entries(COMMANDS)) {
     console.log(`  ${pc.bold(name.padEnd(16))} ${pc.dim(desc)}`);
   }
-  console.log(`\n${pc.dim("Run 'llm-toolkit <command> --help' for command-specific options.")}`);
+  console.log(`\n${pc.dim("Run 'llmct <command> --help' for command-specific options.")}`);
 }
 
 const command = process.argv[2];

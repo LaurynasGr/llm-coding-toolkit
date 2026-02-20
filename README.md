@@ -6,21 +6,27 @@ A CLI with helpful commands for coding with LLMs.
 
 ```sh
 bun install -g llm-coding-toolkit
+```
+
+```sh
 pnpm install -g llm-coding-toolkit
+```
+
+```sh
 npm install -g llm-coding-toolkit
 ```
 
 ## Usage
 
 ```sh
-llm-toolkit <command> [options]
+llmct <command> [options]
 ```
 
 ### Commands
 
 | Command | Description |
 | --- | --- |
-| `review-comments` | Collect unresolved PR review comments into a markdown file for an LLM agent |
+| `review-comments` | Collect unresolved PR review comments into a markdown file to pass to an LLM agent |
 | `prs` | List open pull requests for a repo |
 | `add-token` | Add a GitHub API token |
 | `list-tokens` | List configured tokens |
@@ -29,16 +35,16 @@ llm-toolkit <command> [options]
 
 ```sh
 # Collect unresolved PR review comments for an LLM agent (auto-detects repo)
-llm-toolkit review-comments
+llmct review-comments
 
 # Collect review comments for a specific repo
-llm-toolkit review-comments --repo owner/repo
+llmct review-comments --repo owner/repo
 
 # List open PRs (auto-detects repo from git remote)
-llm-toolkit prs
+llmct prs
 
 # List open PRs for a specific repo
-llm-toolkit prs --repo owner/repo
+llmct prs --repo owner/repo
 ```
 
 The `review-comments` command fetches unresolved review threads from a PR, strips bot noise (HTML, Cursor/Greptile links), and writes a clean markdown file to `.llm-coding-toolkit/agent-reviews/`. If there's a single open PR it's auto-selected; otherwise an interactive picker is shown.
@@ -59,7 +65,7 @@ The `review-comments` command fetches unresolved review threads from a PR, strip
 make build
 ```
 
-Compiles to a standalone binary at `dist/llm-toolkit`.
+Compiles to `dist/cli.mjs` (Node-compatible).
 
 ### Lint
 
@@ -67,3 +73,7 @@ Compiles to a standalone binary at `dist/llm-toolkit`.
 make lint        # check for issues
 make lint-fix    # auto-fix ESLint issues + type check
 ```
+
+## License
+
+MIT
