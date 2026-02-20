@@ -42,4 +42,7 @@ jobs:
 
       - name: Publish
         if: steps.version-check.outputs.publish == 'true'
+        env:
+          NODE_AUTH_TOKEN: ""
+          NPM_TOKEN: ""
         run: npm publish --access public --provenance
