@@ -2,6 +2,11 @@
 
 A CLI with helpful commands for coding with LLMs.
 
+## Requirements
+
+- Node.js 20+
+- A GitHub token with **Pull requests (read-only)** permission
+
 ## Install
 
 ```sh
@@ -21,6 +26,8 @@ npm install -g llm-coding-toolkit
 ```sh
 llmct <command> [options]
 ```
+
+Run `llmct <command> --help` for command-specific options.
 
 ### Commands
 
@@ -45,9 +52,29 @@ llmct prs
 
 # List open PRs for a specific repo
 llmct prs --repo owner/repo
+
+# Add a token (press Enter for default, or enter an owner/org)
+llmct add-token
+
+# List configured tokens
+llmct list-tokens
 ```
 
 The `review-comments` command fetches unresolved review threads from a PR, strips bot noise (HTML, Cursor/Greptile links), and writes a clean markdown file to `.llm-coding-toolkit/agent-reviews/`. If there's a single open PR it's auto-selected; otherwise an interactive picker is shown.
+
+It also ensures `.llm-coding-toolkit/` is added to your repo `.gitignore`.
+
+## Authentication
+
+Before running `review-comments` or `prs`, add a GitHub token:
+
+```sh
+llmct add-token
+```
+
+- Press Enter at the owner prompt to store a `default` token.
+- Enter an organization/owner name to store a token for that specific owner.
+- Tokens are stored in `~/.config/llm-coding-toolkit/config.json`.
 
 ## Stack
 
@@ -58,6 +85,12 @@ The `review-comments` command fetches unresolved review threads from a PR, strip
 - **Linting**: ESLint + Prettier + `typescript-eslint`
 
 ## Development
+
+### Run locally
+
+```sh
+./cli.ts <command> [options]
+```
 
 ### Build
 

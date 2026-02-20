@@ -11,16 +11,16 @@ Instructions for AI agents working on this codebase.
 
 ## Running
 
-- `./cli.ts` — runs the CLI
-- Commands: `./cli.ts <command> [options]`
+- Local dev: `./cli.ts <command> [options]`
+- Installed binary: `llmct <command> [options]`
   - `review-comments` — collect unresolved PR review comments into a markdown file for an LLM agent (`--repo owner/repo` or auto-detect)
   - `prs` — list open PRs (`--repo owner/repo` or auto-detect from git remote)
-  - `add-token` — add a GitHub API token for an owner/org
+  - `add-token` — add a GitHub API token (default token or owner/org-scoped token)
   - `list-tokens` — list configured tokens
 
 ## Project structure
 
-- `cli.ts` — CLI entrypoint, command router (executable, shebang `#!/usr/bin/env bun`)
+- `cli.ts` — CLI entrypoint, command router (executable)
 - `src/config.ts` — GitHub token management (stored in `~/.config/llm-coding-toolkit/config.json`)
 - `src/utils/` — shared utilities
   - `git.ts` — git helpers (e.g. `detectRepoFromGit`)
@@ -34,11 +34,11 @@ Instructions for AI agents working on this codebase.
 ## Key details
 
 - Runtime: Bun (TypeScript executed directly)
-- Build: `make build` — compiles to standalone `dist/llm-toolkit` binary via `bun build --compile`
+- Build: `make build` — bundles to Node-targeted `dist/cli.mjs` via `bun build --target node --outfile dist/cli.mjs`
 - GitHub API client: `@octokit/rest` (REST) + `octokit.graphql` (GraphQL for review threads)
 - Interactive prompts: `@clack/prompts`
 - Terminal colors: `picocolors`
-- Token storage: `~/.config/llm-coding-toolkit/config.json` with 0600 permissions, tokens mapped by owner/org
+- Token storage: `~/.config/llm-coding-toolkit/config.json` with 0600 permissions, supports default and owner/org-mapped tokens
 
 ## Linting
 

@@ -56,7 +56,7 @@ export async function resolveRepo(repoArg?: string): Promise<ResolvedRepo> {
     if (await hasAnyToken()) {
       log.error([
         `No token found for owner '${owner}' and no default token configured.`,
-        pc.dim('Run: llm-toolkit add-token'),
+        pc.dim('Run: llmct add-token'),
       ]);
       process.exit(1);
     }
@@ -65,7 +65,7 @@ export async function resolveRepo(repoArg?: string): Promise<ResolvedRepo> {
     await addToken();
     token = await getTokenForOwner(owner);
     if (!token) {
-      log.error("Token was saved but doesn't match this owner. Run: llm-toolkit add-token");
+      log.error("Token was saved but doesn't match this owner. Run: llmct add-token");
       process.exit(1);
     }
   }

@@ -102,7 +102,7 @@ export async function reviewComments(args: string[]) {
   });
 
   if (values.help) {
-    console.log(`Usage: ${pc.bold('llm-toolkit review-comments')} [options]
+    console.log(`Usage: ${pc.bold('llmct review-comments')} [options]
 
 Collect unresolved PR review comments into a markdown file for an LLM agent.
 
@@ -190,7 +190,7 @@ Options:
     s.stop('Failed');
 
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 401) {
-      log.error(['Authentication failed. Your token may be invalid or expired.', pc.dim('Run: llm-toolkit add-token')]);
+      log.error(['Authentication failed. Your token may be invalid or expired.', pc.dim('Run: llmct add-token')]);
       process.exit(1);
     }
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 404) {

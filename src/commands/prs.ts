@@ -13,7 +13,7 @@ export async function prs(args: string[]) {
   });
 
   if (values.help) {
-    console.log(`Usage: ${pc.bold('llm-toolkit prs')} [options]
+    console.log(`Usage: ${pc.bold('llmct prs')} [options]
 
 List open pull requests for a GitHub repository.
 
@@ -61,7 +61,7 @@ Options:
     s.stop('Failed');
 
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 401) {
-      log.error(['Authentication failed. Your token may be invalid or expired.', pc.dim('Run: llm-toolkit add-token')]);
+      log.error(['Authentication failed. Your token may be invalid or expired.', pc.dim('Run: llmct add-token')]);
       process.exit(1);
     }
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 404) {
