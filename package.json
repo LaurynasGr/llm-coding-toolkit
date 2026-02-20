@@ -1,6 +1,20 @@
 {
   "name": "llm-coding-toolkit",
   "version": "0.1.0",
+  "description": "CLI toolkit for developers using LLM coding agents",
+  "keywords": [
+    "llm",
+    "cli",
+    "github",
+    "code-review",
+    "developer-tools"
+  ],
+  "author": "Laurynas Grigutis",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaurynasGr/llm-coding-toolkit.git"
+  },
   "type": "module",
   "bin": {
     "llmct": "dist/cli.mjs"
