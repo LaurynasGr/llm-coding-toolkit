@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 
-const CONFIG_DIR = join(homedir(), '.config', 'llm-coding-toolkit');
+export const CONFIG_DIR = join(homedir(), '.config', 'llm-coding-toolkit');
 export const CONFIG_FILE = join(CONFIG_DIR, 'config.json');
 
 export interface Config {

@@ -36,8 +36,12 @@ function openEditor(initialContent: string): string | null {
   const file = join(dir, 'message.txt');
 
   try {
-    writeFileSync(file, initialContent);
-    const result = spawnSync(editor, [file], { stdio: 'inherit' });
+    writeFileSync(file, initialContent, { mode: 0o600 });
+
+    // Handle EDITOR values that include arguments (e.g. "code --wait")
+    const result = /\s/.test(editor)
+      ? spawnSync(editor + ' ' + JSON.stringify(file), { stdio: 'inherit', shell: true })
+      : spawnSync(editor, [file], { stdio: 'inherit' });
 
     if (result.status !== 0) return null;
 
@@ -73,14 +77,17 @@ function copyToClipboard(text: string): boolean {
 
 function parseTemplateVars(template: string) {
   const vars: Array<{ name: string; defaultValue: string | undefined }> = [];
-  const seen = new Set<string>();
+  const indexByName = new Map<string, number>();
   TEMPLATE_VAR_RE.lastIndex = 0;
   let match;
   while ((match = TEMPLATE_VAR_RE.exec(template)) !== null) {
     const name = match[1]!.trim();
-    if (!seen.has(name)) {
-      seen.add(name);
+    const existingIndex = indexByName.get(name);
+    if (existingIndex === undefined) {
+      indexByName.set(name, vars.length);
       vars.push({ name, defaultValue: match[2] });
+    } else if (vars[existingIndex]!.defaultValue === undefined && match[2] !== undefined) {
+      vars[existingIndex]!.defaultValue = match[2];
     }
   }
   return vars;

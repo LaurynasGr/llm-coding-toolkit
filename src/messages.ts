@@ -1,8 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
+import { CONFIG_DIR } from './config.ts';
 
-const CONFIG_DIR = join(homedir(), '.config', 'llm-coding-toolkit');
 const MESSAGES_FILE = join(CONFIG_DIR, 'messages.json');
 
 export interface Message {
@@ -17,10 +16,17 @@ interface MessagesStore {
 export async function readMessages(): Promise<Message[]> {
   try {
     const data = await readFile(MESSAGES_FILE, 'utf-8');
-    const store = JSON.parse(data) as MessagesStore;
-    return store.messages;
-  } catch {
-    return [];
+    const parsed = JSON.parse(data) as unknown;
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as MessagesStore).messages)) {
+      return [];
+    }
+
+    return (parsed as MessagesStore).messages;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+      return [];
+    }
+    throw err;
   }
 }
 
@@ -46,6 +52,7 @@ export async function updateMessage(index: number, template: string): Promise<vo
 
 export async function removeMessage(index: number): Promise<void> {
   const messages = await readMessages();
+  if (index < 0 || index >= messages.length) return;
   messages.splice(index, 1);
   await writeMessages(messages);
 }
