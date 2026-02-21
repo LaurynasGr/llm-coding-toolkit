@@ -1,28 +1,47 @@
 #!/usr/bin/env node
 
 import pc from 'picocolors';
-
-const COMMANDS: Record<string, string> = {
-  'review-comments': 'Collect unresolved PR review comments for an LLM agent',
-  prs: 'List open pull requests',
-  'add-token': 'Add a GitHub API token',
-  'list-tokens': 'List configured tokens',
-};
+import { COMMANDS, FLAGS } from './src/commands.ts';
 
 function printUsage() {
+  const commandLines = Object.entries(COMMANDS)
+    .map(([name, desc]) => `  ${pc.bold(name.padEnd(16))} ${pc.dim(desc)}`)
+    .join('\n');
+
+  const flagLines = FLAGS.map(({ name, short, description }) => {
+    const label = short ? `${short}, ${name}` : name;
+    return `  ${pc.bold(label.padEnd(16))} ${pc.dim(description)}`;
+  }).join('\n');
+
   console.log(`Usage: ${pc.bold('llmct')} ${pc.dim('<command> [options]')}
 
-Commands:`);
-  for (const [name, desc] of Object.entries(COMMANDS)) {
-    console.log(`  ${pc.bold(name.padEnd(16))} ${pc.dim(desc)}`);
-  }
-  console.log(`\n${pc.dim("Run 'llmct <command> --help' for command-specific options.")}`);
+Commands:
+${commandLines}
+
+Options:
+${flagLines}
+
+${pc.dim("Run 'llmct <command> --help' for command-specific options.")}`);
 }
 
 const command = process.argv[2];
 
 if (!command || command === '--help' || command === '-h') {
   printUsage();
+  process.exit(0);
+}
+
+if (command === '--version' || command === '-v') {
+  const { readFile } = await import('node:fs/promises');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+
+  const dir = dirname(fileURLToPath(import.meta.url));
+  const pkg = await readFile(join(dir, 'package.json'), 'utf-8').catch(() =>
+    readFile(join(dir, '..', 'package.json'), 'utf-8'),
+  );
+  const { version } = JSON.parse(pkg) as { version: string };
+  console.log(version);
   process.exit(0);
 }
 
@@ -47,6 +66,11 @@ switch (command) {
   case 'list-tokens': {
     const { listTokens } = await import('./src/commands/list-tokens.ts');
     await listTokens();
+    break;
+  }
+  case 'autocomplete': {
+    const { autocomplete } = await import('./src/commands/autocomplete.ts');
+    await autocomplete(commandArgs);
     break;
   }
   default:

@@ -37,6 +37,7 @@ Run `llmct <command> --help` for command-specific options.
 | `prs` | List open pull requests for a repo |
 | `add-token` | Add a GitHub API token |
 | `list-tokens` | List configured tokens |
+| `autocomplete` | Install shell autocomplete for `llmct` |
 
 ### Examples
 
@@ -58,6 +59,9 @@ llmct add-token
 
 # List configured tokens
 llmct list-tokens
+
+# Install shell autocomplete for the current shell (zsh/bash/fish)
+llmct autocomplete
 ```
 
 The `review-comments` command fetches unresolved review threads from a PR, strips bot noise (HTML, Cursor/Greptile links), and writes a clean markdown file to `.llm-coding-toolkit/agent-reviews/`. If there's a single open PR it's auto-selected; otherwise an interactive picker is shown.
