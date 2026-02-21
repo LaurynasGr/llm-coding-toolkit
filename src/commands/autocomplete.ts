@@ -6,7 +6,7 @@ import { homedir } from 'node:os';
 import { intro, outro } from '@clack/prompts';
 import pc from 'picocolors';
 import { log } from '../utils/index.ts';
-import { COMMANDS } from '../commands.ts';
+import { COMMANDS, FLAGS, GLOBAL_FLAGS } from '../commands.ts';
 
 const BEGIN_MARKER = '# >>> llmct autocomplete >>>';
 const END_MARKER = '# <<< llmct autocomplete <<<';
@@ -35,22 +35,6 @@ function getCurrentShell(): SupportedShell | null {
   return null;
 }
 
-const FLAGS = [
-  { name: '--help', short: '-h', description: 'Show help message' },
-  { name: '--version', short: '-v', description: 'Show version number' },
-] as const satisfies { name: string; short?: string; description: string }[];
-
-const GLOBAL_FLAGS = Object.fromEntries(
-  FLAGS.flatMap(({ name, short, description }) =>
-    short
-      ? [
-          [name, description],
-          [short, description],
-        ]
-      : [[name, description]],
-  ),
-);
-
 function buildBashOrZshSnippet(shell: 'bash' | 'zsh'): string {
   const names = [...Object.keys(COMMANDS), ...Object.keys(GLOBAL_FLAGS)];
   const targets = ['llmct', ...(isCommandAvailable('llmct-dev') ? ['llmct-dev'] : [])].join(' ');
@@ -66,9 +50,8 @@ if ! typeset -f compdef >/dev/null 2>&1; then
   compinit
 fi
 
-setopt COMPLETE_ALIASES
-
 _llmct_completions() {
+  setopt localoptions COMPLETE_ALIASES
   local -a commands
   commands=(
 ${zshEntries}
