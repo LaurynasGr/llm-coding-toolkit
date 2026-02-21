@@ -58,11 +58,15 @@ function copyToClipboard(text: string): boolean {
     if (plat === 'darwin') {
       execSync('pbcopy', { input: text });
     } else if (plat === 'linux') {
-      // WSL detection
+      // WSL detection: only fall back to xclip if clip.exe is not found
       try {
         execSync('clip.exe', { input: text });
-      } catch {
-        execSync('xclip -selection clipboard', { input: text });
+      } catch (err) {
+        if ((err as { status?: number })?.status === 127) {
+          execSync('xclip -selection clipboard', { input: text });
+        } else {
+          throw err;
+        }
       }
     } else if (plat === 'win32') {
       execSync('clip.exe', { input: text });
@@ -125,11 +129,13 @@ async function selectMessage(messages: Message[]): Promise<number | null> {
 async function handleAdd() {
   intro(pc.bold('Add Message'));
 
+  const existingMessages = await readMessages();
   const name = await text({
     message: 'Message name',
     placeholder: 'e.g. Review changes',
     validate: (value) => {
       if (!value?.trim()) return 'Name cannot be empty';
+      if (existingMessages.some((m) => m.name === value.trim())) return 'A message with this name already exists';
     },
   });
 
