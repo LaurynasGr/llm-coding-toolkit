@@ -127,10 +127,10 @@ async function upsertMarkedBlock(filePath: string, block: string): Promise<boole
     // file doesn't exist yet
   }
 
-  const escapedBegin = BEGIN_MARKER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const escapedEnd = END_MARKER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const markerRegex = new RegExp(`${escapedBegin}[\\s\\S]*?${escapedEnd}\\n?`, 'g');
-  const cleaned = current.replace(markerRegex, '').trimEnd();
+  const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const MARKER_REGEX = new RegExp(`${escapeRegex(BEGIN_MARKER)}[\\s\\S]*?${escapeRegex(END_MARKER)}\\n?`, 'g');
+
+  const cleaned = current.replace(MARKER_REGEX, '').trimEnd();
   const next = `${cleaned}${cleaned ? '\n\n' : ''}${block}`;
 
   if (current === next) {
@@ -152,7 +152,7 @@ export async function autocomplete(args: string[]) {
   if (values.help) {
     console.log(`Usage: ${pc.bold('llmct autocomplete')}
 
-Create shell autocomplete for llmct on the current system shell.
+Install shell autocomplete for llmct on the current system shell.
 
 Options:
   ${pc.bold('-h, --help')}               Show this help message`);
@@ -191,5 +191,5 @@ Options:
     log.info(`Autocomplete is already configured in ${pc.bold(rcPath)}.`);
   }
 
-  outro(pc.green('Done. Restart your shell or run: source ' + rcPath));
+  outro(pc.green(`Done. Restart your shell or run: source ${rcPath}`));
 }
