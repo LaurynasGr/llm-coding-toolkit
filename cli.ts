@@ -73,6 +73,11 @@ switch (command) {
     await autocomplete(commandArgs);
     break;
   }
+  case 'messages': {
+    const { messages } = await import('./src/commands/messages.ts');
+    await messages(commandArgs);
+    break;
+  }
   default:
     console.error(pc.red(`Unknown command: ${command}\n`));
     printUsage();
