@@ -197,6 +197,11 @@ async function handlePick() {
   const msg = messages[index]!;
   const vars = parseTemplateVars(msg.template);
 
+  if (vars.length > 0) {
+    const highlighted = msg.template.replace(TEMPLATE_VAR_RE, (_, name: string) => pc.cyan(`{{${name.trim()}}}`));
+    log.message(highlighted);
+  }
+
   const values: Record<string, string> = {};
   for (const v of vars) {
     const answer = await text({
