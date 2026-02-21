@@ -38,6 +38,7 @@ Run `llmct <command> --help` for command-specific options.
 | `add-token` | Add a GitHub API token |
 | `list-tokens` | List configured tokens |
 | `autocomplete` | Install shell autocomplete for `llmct` |
+| `messages` | Manage reusable message templates with variable substitution |
 
 ### Examples
 
@@ -62,11 +63,23 @@ llmct list-tokens
 
 # Install shell autocomplete for the current shell (zsh/bash/fish)
 llmct autocomplete
+
+# Pick a saved message, fill in variables, and copy to clipboard
+llmct messages
+
+# Add a new message template
+llmct messages add
+
+# Update or remove a message template
+llmct messages update
+llmct messages remove
 ```
 
 The `review-comments` command fetches unresolved review threads from a PR, strips bot noise (HTML, Cursor/Greptile links), and writes a clean markdown file to `.llm-coding-toolkit/agent-reviews/`. If there's a single open PR it's auto-selected; otherwise an interactive picker is shown.
 
 It also ensures `.llm-coding-toolkit/` is added to your repo `.gitignore`.
+
+The `messages` command lets you save reusable message templates with variable placeholders (`{{VarName:"default"}}`). When you pick a message, you're prompted to fill in variables, and the resolved text is copied to your clipboard. Templates are stored in `~/.config/llm-coding-toolkit/messages.json`.
 
 ## Authentication
 

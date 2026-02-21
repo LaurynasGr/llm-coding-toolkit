@@ -18,6 +18,7 @@ Instructions for AI agents working on this codebase.
   - `add-token` — add a GitHub API token (default token or owner/org-scoped token)
   - `list-tokens` — list configured tokens
   - `autocomplete` — install shell autocomplete for `llmct`
+  - `messages` — manage reusable message templates with variable substitution (subcommands: `add`, `update`, `remove`)
 
 ## Project structure
 
@@ -33,6 +34,8 @@ Instructions for AI agents working on this codebase.
   - `add-token.ts` — add a GitHub API token
   - `list-tokens.ts` — list configured tokens
   - `autocomplete.ts` — install shell autocomplete (zsh/bash/fish)
+  - `messages.ts` — manage reusable message templates
+- `src/messages.ts` — message storage (stored in `~/.config/llm-coding-toolkit/messages.json`)
 
 ## Key details
 
