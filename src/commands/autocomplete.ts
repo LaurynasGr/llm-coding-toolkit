@@ -51,7 +51,6 @@ if ! typeset -f compdef >/dev/null 2>&1; then
 fi
 
 _llmct_completions() {
-  setopt localoptions COMPLETE_ALIASES
   local -a commands
   commands=(
 ${zshEntries}
@@ -61,7 +60,7 @@ ${zshEntries}
     _describe 'command' commands
   fi
 }
-
+${targets.includes('llmct-dev') ? '\nsetopt localoptions COMPLETE_ALIASES' : ''}
 compdef _llmct_completions ${targets}
 ${END_MARKER}
 `;
