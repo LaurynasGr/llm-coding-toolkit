@@ -17,6 +17,7 @@ Instructions for AI agents working on this codebase.
   - `prs` — list open PRs (`--repo owner/repo` or auto-detect from git remote)
   - `add-token` — add a GitHub API token (default token or owner/org-scoped token)
   - `list-tokens` — list configured tokens
+  - `gh-auth` — authenticate the GitHub CLI (`gh`) with a stored token (subcommand: `pick` for interactive token selection)
   - `autocomplete` — install shell autocomplete for `llmct`
   - `messages` — manage reusable message templates with variable substitution (subcommands: `add`, `update`, `remove`)
 
@@ -33,6 +34,7 @@ Instructions for AI agents working on this codebase.
   - `prs.ts` — list open pull requests
   - `add-token.ts` — add a GitHub API token
   - `list-tokens.ts` — list configured tokens
+  - `gh-auth/` — authenticate the GitHub CLI (`gh`) with a stored token (`index.ts` — command entry, `login.ts` — pipe a token to `gh auth login`)
   - `autocomplete.ts` — install shell autocomplete (zsh/bash/fish)
   - `messages.ts` — manage reusable message templates
 - `src/messages.ts` — message storage (stored in `~/.config/llm-coding-toolkit/messages.json`)

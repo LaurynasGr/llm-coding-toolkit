@@ -23,9 +23,23 @@ export async function writeConfig(config: Config): Promise<void> {
   await writeFile(CONFIG_FILE, JSON.stringify(config, null, 2), { mode: 0o600 });
 }
 
-export async function getTokenForOwner(owner: string): Promise<string | null> {
+export interface TokenEntry {
+  label: string; // owner/org the token is stored under, or 'default'
+  token: string;
+}
+
+export async function getTokenEntryForOwner(owner: string): Promise<TokenEntry | null> {
   const config = await readConfig();
-  return config.tokens[owner] ?? config.tokens['default'] ?? null;
+  const ownerToken = config.tokens[owner];
+  if (ownerToken) return { label: owner, token: ownerToken };
+  const defaultToken = config.tokens['default'];
+  if (defaultToken) return { label: 'default', token: defaultToken };
+  return null;
+}
+
+export async function getTokenForOwner(owner: string): Promise<string | null> {
+  const entry = await getTokenEntryForOwner(owner);
+  return entry?.token ?? null;
 }
 
 export async function hasAnyToken(): Promise<boolean> {

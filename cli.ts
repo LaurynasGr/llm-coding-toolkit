@@ -68,6 +68,11 @@ switch (command) {
     await listTokens();
     break;
   }
+  case 'gh-auth': {
+    const { ghAuth } = await import('./src/commands/gh-auth/index.ts');
+    await ghAuth(commandArgs);
+    break;
+  }
   case 'autocomplete': {
     const { autocomplete } = await import('./src/commands/autocomplete.ts');
     await autocomplete(commandArgs);

@@ -45,6 +45,14 @@ llmct messages
 
 Save reusable message templates with variable placeholders (`{{VarName:"default"}}`). Pick a message, fill in variables, and the resolved text is copied to your clipboard. Templates are stored in `~/.config/llm-coding-toolkit/messages.json`.
 
+### gh-auth
+
+```sh
+llmct gh-auth
+```
+
+Authenticates the GitHub CLI (`gh`) with a stored token. Detects the current repo and uses the matching token entry (owner-specific or `default`); if no repo or matching token is found, an interactive token picker is shown. Run `llmct gh-auth pick` to choose the token explicitly. The token is piped to `gh auth login --with-token` so it never appears in command arguments or logs.
+
 ### Commands
 
 | Command | Description |
@@ -53,6 +61,7 @@ Save reusable message templates with variable placeholders (`{{VarName:"default"
 | `prs` | List open pull requests for a repo |
 | `add-token` | Add a GitHub API token |
 | `list-tokens` | List configured tokens |
+| `gh-auth` | Authenticate the GitHub CLI (`gh`) with a stored token |
 | `autocomplete` | Install shell autocomplete for `llmct` |
 | `messages` | Manage reusable message templates with variable substitution |
 
@@ -73,6 +82,9 @@ llmct add-token
 
 # List configured tokens
 llmct list-tokens
+
+# Authenticate gh, picking the token interactively
+llmct gh-auth pick
 
 # Install shell autocomplete for the current shell (zsh/bash/fish)
 llmct autocomplete

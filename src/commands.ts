@@ -3,11 +3,15 @@ export const COMMANDS = {
   prs: 'List open pull requests',
   'add-token': 'Add a GitHub API token',
   'list-tokens': 'List configured tokens',
+  'gh-auth': 'Authenticate the GitHub CLI (gh) with a stored token',
   autocomplete: 'Install shell autocomplete for llmct',
   messages: 'Manage reusable message templates',
 } as const;
 
 export const SUBCOMMANDS = {
+  'gh-auth': {
+    pick: 'Pick a stored token to authenticate gh with',
+  },
   messages: {
     add: 'Add a new message template',
     update: 'Update an existing message template',
