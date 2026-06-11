@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 import { intro, outro, spinner } from '@clack/prompts';
-import { log, resolveRepo, listOpenPulls } from '../utils/index.ts';
+import { log, printCommandHelp, resolveRepo, listOpenPulls } from '../utils/index.ts';
 import pc from 'picocolors';
 
 export async function prs(args: string[]) {
@@ -13,13 +13,18 @@ export async function prs(args: string[]) {
   });
 
   if (values.help) {
-    console.log(`Usage: ${pc.bold('llmct prs')} [options]
-
-List open pull requests for a GitHub repository.
-
-Options:
-  ${pc.bold('-r, --repo')} ${pc.dim('<owner/repo>')}  GitHub repository (default: detected from git remote)
-  ${pc.bold('-h, --help')}               Show this help message`);
+    printCommandHelp({
+      command: 'prs',
+      usage: '[options]',
+      description: 'List open pull requests for a GitHub repository.',
+      options: [
+        {
+          flag: '-r, --repo',
+          arg: '<owner/repo>',
+          description: 'GitHub repository (default: detected from git remote)',
+        },
+      ],
+    });
     process.exit(0);
   }
 
