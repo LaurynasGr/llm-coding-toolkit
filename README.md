@@ -7,7 +7,7 @@ A CLI with helpful commands for coding with LLMs.
 - Node.js 20+
 - A GitHub token with **Pull requests (read-only)** permission
 
-## Install
+## Installation
 
 ```sh
 bun install -g llm-coding-toolkit
@@ -29,6 +29,22 @@ llmct <command> [options]
 
 Run `llmct <command> --help` for command-specific options.
 
+### review-comments
+
+```sh
+llmct review-comments
+```
+
+Fetches unresolved review threads from a PR, strips bot noise, and writes a clean markdown file to `.llm-coding-toolkit/agent-reviews/`. If there's a single open PR it's auto-selected; otherwise an interactive picker is shown. It also ensures `.llm-coding-toolkit/` is added to your repo `.gitignore`.
+
+### messages
+
+```sh
+llmct messages
+```
+
+Save reusable message templates with variable placeholders (`{{VarName:"default"}}`). Pick a message, fill in variables, and the resolved text is copied to your clipboard. Templates are stored in `~/.config/llm-coding-toolkit/messages.json`.
+
 ### Commands
 
 | Command | Description |
@@ -40,12 +56,9 @@ Run `llmct <command> --help` for command-specific options.
 | `autocomplete` | Install shell autocomplete for `llmct` |
 | `messages` | Manage reusable message templates with variable substitution |
 
-### Examples
+### More examples
 
 ```sh
-# Collect unresolved PR review comments for an LLM agent (auto-detects repo)
-llmct review-comments
-
 # Collect review comments for a specific repo
 llmct review-comments --repo owner/repo
 
@@ -64,9 +77,6 @@ llmct list-tokens
 # Install shell autocomplete for the current shell (zsh/bash/fish)
 llmct autocomplete
 
-# Pick a saved message, fill in variables, and copy to clipboard
-llmct messages
-
 # Add a new message template
 llmct messages add
 
@@ -74,12 +84,6 @@ llmct messages add
 llmct messages update
 llmct messages remove
 ```
-
-The `review-comments` command fetches unresolved review threads from a PR, strips bot noise (HTML, Cursor/Greptile links), and writes a clean markdown file to `.llm-coding-toolkit/agent-reviews/`. If there's a single open PR it's auto-selected; otherwise an interactive picker is shown.
-
-It also ensures `.llm-coding-toolkit/` is added to your repo `.gitignore`.
-
-The `messages` command lets you save reusable message templates with variable placeholders (`{{VarName:"default"}}`). When you pick a message, you're prompted to fill in variables, and the resolved text is copied to your clipboard. Templates are stored in `~/.config/llm-coding-toolkit/messages.json`.
 
 ## Authentication
 
