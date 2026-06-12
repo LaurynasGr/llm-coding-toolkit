@@ -73,7 +73,7 @@ export async function prs(args: string[]) {
       process.exit(1);
     }
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 404) {
-      log.error(`Repository '${repo}' not found (or you don't have access).`);
+      log.error(`Repository '${repo.slug}' not found (or you don't have access).`);
       process.exit(1);
     }
     throw err;
