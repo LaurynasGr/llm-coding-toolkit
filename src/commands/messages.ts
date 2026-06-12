@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { tmpdir, platform } from 'node:os';
 import { parseArgs } from 'node:util';
 import pc from 'picocolors';
-import { log } from '../utils/index.ts';
+import { log, printCommandHelp, ensureSubcommand } from '../utils/index.ts';
 import { readMessages, addMessage, updateMessage, removeMessage } from '../messages.ts';
 import type { Message } from '../messages.ts';
 import { SUBCOMMANDS } from '../commands.ts';
@@ -13,21 +13,13 @@ import { SUBCOMMANDS } from '../commands.ts';
 const TEMPLATE_VAR_RE = /\{\{([^:}]+)(?::"([^"]*)")?\}\}/g;
 
 function printHelp() {
-  const subcommandLines = Object.entries(SUBCOMMANDS.messages)
-    .map(([name, desc]) => `  ${pc.bold(name.padEnd(12))} ${pc.dim(desc)}`)
-    .join('\n');
-
-  console.log(`Usage: ${pc.bold('llmct messages')} ${pc.dim('[subcommand]')}
-
-Pick a saved message, fill in variables, and copy to clipboard.
-
-Subcommands:
-${subcommandLines}
-
-Options:
-  ${pc.bold('-h, --help'.padEnd(12))} ${pc.dim('Show this help message')}
-
-${pc.dim('Run without a subcommand to pick and use a message.')}`);
+  printCommandHelp({
+    command: 'messages',
+    usage: '[subcommand]',
+    description: 'Pick a saved message, fill in variables, and copy to clipboard.',
+    subcommands: SUBCOMMANDS.messages,
+    footer: 'Run without a subcommand to pick and use a message.',
+  });
 }
 
 function openEditor(initialContent: string): string | null {
@@ -250,7 +242,7 @@ export async function messages(args: string[]) {
     process.exit(0);
   }
 
-  const subcommand = positionals[0];
+  const subcommand = await ensureSubcommand(positionals[0], SUBCOMMANDS.messages, printHelp);
 
   switch (subcommand) {
     case 'add':

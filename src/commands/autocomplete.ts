@@ -5,7 +5,7 @@ import { basename, join } from 'node:path';
 import { homedir } from 'node:os';
 import { intro, outro } from '@clack/prompts';
 import pc from 'picocolors';
-import { log } from '../utils/index.ts';
+import { log, printCommandHelp } from '../utils/index.ts';
 import { COMMANDS, FLAGS, GLOBAL_FLAGS, SUBCOMMANDS } from '../commands.ts';
 
 const BEGIN_MARKER = '# >>> llmct autocomplete >>>';
@@ -166,12 +166,10 @@ export async function autocomplete(args: string[]) {
   });
 
   if (values.help) {
-    console.log(`Usage: ${pc.bold('llmct autocomplete')}
-
-Install shell autocomplete for llmct on the current system shell.
-
-Options:
-  ${pc.bold('-h, --help')}               Show this help message`);
+    printCommandHelp({
+      command: 'autocomplete',
+      description: 'Install shell autocomplete for llmct on the current system shell.',
+    });
     process.exit(0);
   }
 

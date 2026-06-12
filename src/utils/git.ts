@@ -56,16 +56,16 @@ export async function resolveRepo(repoArg?: string): Promise<ResolvedRepo> {
     if (await hasAnyToken()) {
       log.error([
         `No token found for owner '${owner}' and no default token configured.`,
-        pc.dim('Run: llmct add-token'),
+        pc.dim('Run: llmct github add-token'),
       ]);
       process.exit(1);
     }
     log.warn('No GitHub API token configured.');
-    const { addToken } = await import('../commands/add-token.ts');
+    const { addToken } = await import('../commands/github/add-token.ts');
     await addToken();
     token = await getTokenForOwner(owner);
     if (!token) {
-      log.error("Token was saved but doesn't match this owner. Run: llmct add-token");
+      log.error("Token was saved but doesn't match this owner. Run: llmct github add-token");
       process.exit(1);
     }
   }

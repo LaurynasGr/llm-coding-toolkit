@@ -58,14 +58,9 @@ switch (command) {
     await prs(commandArgs);
     break;
   }
-  case 'add-token': {
-    const { addToken } = await import('./src/commands/add-token.ts');
-    await addToken();
-    break;
-  }
-  case 'list-tokens': {
-    const { listTokens } = await import('./src/commands/list-tokens.ts');
-    await listTokens();
+  case 'github': {
+    const { github } = await import('./src/commands/github/index.ts');
+    await github(commandArgs);
     break;
   }
   case 'autocomplete': {

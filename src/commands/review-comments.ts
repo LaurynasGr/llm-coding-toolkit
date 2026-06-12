@@ -3,7 +3,14 @@ import { mkdir, readFile, writeFile, appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { intro, outro, spinner, select, isCancel } from '@clack/prompts';
 import pc from 'picocolors';
-import { log, resolveRepo, listOpenPulls, listUnresolvedReviewThreads, detectRepoRoot } from '../utils/index.ts';
+import {
+  log,
+  printCommandHelp,
+  resolveRepo,
+  listOpenPulls,
+  listUnresolvedReviewThreads,
+  detectRepoRoot,
+} from '../utils/index.ts';
 import type { ReviewThread } from '../utils/git.ts';
 
 function slugify(text: string): string {
@@ -102,13 +109,18 @@ export async function reviewComments(args: string[]) {
   });
 
   if (values.help) {
-    console.log(`Usage: ${pc.bold('llmct review-comments')} [options]
-
-Collect unresolved PR review comments into a markdown file for an LLM agent.
-
-Options:
-  ${pc.bold('-r, --repo')} ${pc.dim('<owner/repo>')}  GitHub repository (default: detected from git remote)
-  ${pc.bold('-h, --help')}               Show this help message`);
+    printCommandHelp({
+      command: 'review-comments',
+      usage: '[options]',
+      description: 'Collect unresolved PR review comments into a markdown file for an LLM agent.',
+      options: [
+        {
+          flag: '-r, --repo',
+          arg: '<owner/repo>',
+          description: 'GitHub repository (default: detected from git remote)',
+        },
+      ],
+    });
     process.exit(0);
   }
 
@@ -190,7 +202,10 @@ Options:
     s.stop('Failed');
 
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 401) {
-      log.error(['Authentication failed. Your token may be invalid or expired.', pc.dim('Run: llmct add-token')]);
+      log.error([
+        'Authentication failed. Your token may be invalid or expired.',
+        pc.dim('Run: llmct github add-token'),
+      ]);
       process.exit(1);
     }
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 404) {

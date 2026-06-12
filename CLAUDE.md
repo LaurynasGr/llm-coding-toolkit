@@ -7,7 +7,7 @@ Instructions for AI agents working on this codebase.
 - Do not include any code snippets in your "Here's what I did" summaries once you're finished with a task
 - Do not use `-C <path>` with git commands - just run `git` directly (the working directory is already correct)
 - When learning useful conventions or patterns from our interactions, add them to this CLAUDE.md file (not to the memory directory)
-
+- Only add a `Co-Authored-By: <agent>` trailer to a commit when the agent actually wrote the code or a comparable share of it (roughly 50/50 co-authorship). Do not add it when committing code the user wrote, even if the agent made minor adjustments to it.
 
 ## Running
 
@@ -15,8 +15,7 @@ Instructions for AI agents working on this codebase.
 - Installed binary: `llmct <command> [options]`
   - `review-comments` — collect unresolved PR review comments into a markdown file for an LLM agent (`--repo owner/repo` or auto-detect)
   - `prs` — list open PRs (`--repo owner/repo` or auto-detect from git remote)
-  - `add-token` — add a GitHub API token (default token or owner/org-scoped token)
-  - `list-tokens` — list configured tokens
+  - `github` — GitHub CLI auth and token management; no subcommand shows an interactive picker (subcommands: `auth` to authenticate `gh` with the token matching the current repo, `add-token` to add a default or owner/org-scoped token, `list-tokens` to list configured tokens)
   - `autocomplete` — install shell autocomplete for `llmct`
   - `messages` — manage reusable message templates with variable substitution (subcommands: `add`, `update`, `remove`)
 
@@ -31,8 +30,7 @@ Instructions for AI agents working on this codebase.
 - `src/commands/` — command implementations
   - `review-comments.ts` — collect unresolved PR review comments into markdown
   - `prs.ts` — list open pull requests
-  - `add-token.ts` — add a GitHub API token
-  - `list-tokens.ts` — list configured tokens
+  - `github/` — GitHub CLI auth and token management (`index.ts` — command entry, `login.ts` — pipe a token to `gh auth login`, `add-token.ts` — add a GitHub API token, `list-tokens.ts` — list configured tokens)
   - `autocomplete.ts` — install shell autocomplete (zsh/bash/fish)
   - `messages.ts` — manage reusable message templates
 - `src/messages.ts` — message storage (stored in `~/.config/llm-coding-toolkit/messages.json`)

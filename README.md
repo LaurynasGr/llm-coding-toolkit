@@ -45,14 +45,29 @@ llmct messages
 
 Save reusable message templates with variable placeholders (`{{VarName:"default"}}`). Pick a message, fill in variables, and the resolved text is copied to your clipboard. Templates are stored in `~/.config/llm-coding-toolkit/messages.json`.
 
+### github
+
+```sh
+llmct github
+```
+
+GitHub CLI authentication and token management. Run without a subcommand to pick one interactively, or invoke a subcommand directly:
+
+```sh
+llmct github auth
+llmct github add-token
+llmct github list-tokens
+```
+
+`auth` authenticates the GitHub CLI (`gh`) with a stored token. It detects the current repo and uses the matching token entry (owner-specific or `default`); if no repo or matching token is found, an interactive token picker is shown. The token is piped to `gh auth login --with-token` so it never appears in command arguments or logs.
+
 ### Commands
 
 | Command | Description |
 | --- | --- |
 | `review-comments` | Collect unresolved PR review comments into a markdown file to pass to an LLM agent |
 | `prs` | List open pull requests for a repo |
-| `add-token` | Add a GitHub API token |
-| `list-tokens` | List configured tokens |
+| `github` | Authenticate the GitHub CLI (`gh`) and manage API tokens (`auth` / `add-token` / `list-tokens` subcommands) |
 | `autocomplete` | Install shell autocomplete for `llmct` |
 | `messages` | Manage reusable message templates with variable substitution |
 
@@ -69,10 +84,13 @@ llmct prs
 llmct prs --repo owner/repo
 
 # Add a token (press Enter for default, or enter an owner/org)
-llmct add-token
+llmct github add-token
 
 # List configured tokens
-llmct list-tokens
+llmct github list-tokens
+
+# Authenticate gh with the token matching the current repo
+llmct github auth
 
 # Install shell autocomplete for the current shell (zsh/bash/fish)
 llmct autocomplete
@@ -90,7 +108,7 @@ llmct messages remove
 Before running `review-comments` or `prs`, add a GitHub token:
 
 ```sh
-llmct add-token
+llmct github add-token
 ```
 
 - Press Enter at the owner prompt to store a `default` token.
