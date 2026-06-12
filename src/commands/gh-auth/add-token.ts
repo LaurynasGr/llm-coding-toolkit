@@ -1,7 +1,7 @@
 import { intro, outro, text, password, isCancel, cancel } from '@clack/prompts';
-import { log } from '../utils/index.ts';
+import { log } from '../../utils/index.ts';
 import pc from 'picocolors';
-import { readConfig, writeConfig, CONFIG_FILE } from '../config.ts';
+import { readConfig, writeConfig, CONFIG_FILE } from '../../config.ts';
 
 export async function addToken() {
   intro(pc.bold('Add GitHub API Token'));

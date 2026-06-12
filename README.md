@@ -53,15 +53,20 @@ llmct gh-auth
 
 Authenticates the GitHub CLI (`gh`) with a stored token. Detects the current repo and uses the matching token entry (owner-specific or `default`); if no repo or matching token is found, an interactive token picker is shown. Run `llmct gh-auth pick` to choose the token explicitly. The token is piped to `gh auth login --with-token` so it never appears in command arguments or logs.
 
+Tokens are managed with the `add-token` and `list-tokens` subcommands:
+
+```sh
+llmct gh-auth add-token
+llmct gh-auth list-tokens
+```
+
 ### Commands
 
 | Command | Description |
 | --- | --- |
 | `review-comments` | Collect unresolved PR review comments into a markdown file to pass to an LLM agent |
 | `prs` | List open pull requests for a repo |
-| `add-token` | Add a GitHub API token |
-| `list-tokens` | List configured tokens |
-| `gh-auth` | Authenticate the GitHub CLI (`gh`) with a stored token |
+| `gh-auth` | Authenticate the GitHub CLI (`gh`) with a stored token; manage tokens via `add-token` / `list-tokens` subcommands |
 | `autocomplete` | Install shell autocomplete for `llmct` |
 | `messages` | Manage reusable message templates with variable substitution |
 
@@ -78,10 +83,10 @@ llmct prs
 llmct prs --repo owner/repo
 
 # Add a token (press Enter for default, or enter an owner/org)
-llmct add-token
+llmct gh-auth add-token
 
 # List configured tokens
-llmct list-tokens
+llmct gh-auth list-tokens
 
 # Authenticate gh, picking the token interactively
 llmct gh-auth pick
@@ -102,7 +107,7 @@ llmct messages remove
 Before running `review-comments` or `prs`, add a GitHub token:
 
 ```sh
-llmct add-token
+llmct gh-auth add-token
 ```
 
 - Press Enter at the owner prompt to store a `default` token.

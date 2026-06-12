@@ -58,16 +58,6 @@ switch (command) {
     await prs(commandArgs);
     break;
   }
-  case 'add-token': {
-    const { addToken } = await import('./src/commands/add-token.ts');
-    await addToken();
-    break;
-  }
-  case 'list-tokens': {
-    const { listTokens } = await import('./src/commands/list-tokens.ts');
-    await listTokens();
-    break;
-  }
   case 'gh-auth': {
     const { ghAuth } = await import('./src/commands/gh-auth/index.ts');
     await ghAuth(commandArgs);

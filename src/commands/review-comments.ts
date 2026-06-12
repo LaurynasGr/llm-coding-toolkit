@@ -202,7 +202,10 @@ export async function reviewComments(args: string[]) {
     s.stop('Failed');
 
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 401) {
-      log.error(['Authentication failed. Your token may be invalid or expired.', pc.dim('Run: llmct add-token')]);
+      log.error([
+        'Authentication failed. Your token may be invalid or expired.',
+        pc.dim('Run: llmct gh-auth add-token'),
+      ]);
       process.exit(1);
     }
     if (err instanceof Error && 'status' in err && (err as { status: number }).status === 404) {

@@ -6,6 +6,8 @@ import { readConfig, getTokenEntryForOwner } from '../../config.ts';
 import type { TokenEntry } from '../../config.ts';
 import { SUBCOMMANDS } from '../../commands.ts';
 import { loginWithToken } from './login.ts';
+import { addToken } from './add-token.ts';
+import { listTokens } from './list-tokens.ts';
 
 function printHelp() {
   printCommandHelp({
@@ -22,7 +24,7 @@ async function pickTokenEntry(): Promise<TokenEntry> {
   const labels = Object.keys(config.tokens);
 
   if (labels.length === 0) {
-    log.error(['No tokens configured.', pc.dim('Run: llmct add-token')]);
+    log.error(['No tokens configured.', pc.dim('Run: llmct gh-auth add-token')]);
     process.exit(1);
   }
 
@@ -39,25 +41,12 @@ async function pickTokenEntry(): Promise<TokenEntry> {
   return { label: choice, token: config.tokens[choice]! };
 }
 
-export async function ghAuth(args: string[]) {
-  const { values, positionals } = parseArgs({
-    args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-    },
-    allowPositionals: true,
-  });
-
-  if (values.help) {
-    printHelp();
-    process.exit(0);
-  }
-
+async function handleLogin(forcePick: boolean) {
   intro(pc.bold('GitHub CLI Auth'));
 
   let entry: TokenEntry | null = null;
 
-  if (positionals[0] !== 'pick') {
+  if (!forcePick) {
     const slug = detectRepoFromGit();
     if (!slug) {
       log.warn('Could not detect a GitHub repository here. Pick a token instead.');
@@ -83,4 +72,33 @@ export async function ghAuth(args: string[]) {
   loginWithToken(entry);
 
   outro(pc.green('Done'));
+}
+
+export async function ghAuth(args: string[]) {
+  const { values, positionals } = parseArgs({
+    args,
+    options: {
+      help: { type: 'boolean', short: 'h' },
+    },
+    allowPositionals: true,
+  });
+
+  if (values.help) {
+    printHelp();
+    process.exit(0);
+  }
+
+  const subcommand = positionals[0];
+
+  switch (subcommand) {
+    case 'add-token':
+      await addToken();
+      break;
+    case 'list-tokens':
+      await listTokens();
+      break;
+    default:
+      await handleLogin(subcommand === 'pick');
+      break;
+  }
 }

@@ -1,8 +1,6 @@
 export const COMMANDS = {
   'review-comments': 'Collect unresolved PR review comments for an LLM agent',
   prs: 'List open pull requests',
-  'add-token': 'Add a GitHub API token',
-  'list-tokens': 'List configured tokens',
   'gh-auth': 'Authenticate the GitHub CLI (gh) with a stored token',
   autocomplete: 'Install shell autocomplete for llmct',
   messages: 'Manage reusable message templates',
@@ -11,6 +9,8 @@ export const COMMANDS = {
 export const SUBCOMMANDS = {
   'gh-auth': {
     pick: 'Pick a stored token to authenticate gh with',
+    'add-token': 'Add a GitHub API token',
+    'list-tokens': 'List configured tokens',
   },
   messages: {
     add: 'Add a new message template',
