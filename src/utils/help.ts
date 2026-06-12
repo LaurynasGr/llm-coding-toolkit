@@ -1,4 +1,5 @@
 import pc from 'picocolors';
+import { log } from './log.ts';
 
 export interface HelpOption {
   flag: string; // e.g. '-r, --repo'
@@ -47,4 +48,33 @@ export function printCommandHelp({ command, usage, description, subcommands, opt
   }
 
   console.log(lines.join('\n'));
+}
+
+// Resolves a positional subcommand: returns it when known and errors out (help + exit 1)
+// when unrecognized. An absent subcommand defers to pickSubcommand when given, otherwise
+// resolves to undefined so the caller can run its default flow.
+export async function ensureSubcommand<K extends string>(
+  subcommand: string | undefined,
+  subcommands: Record<K, string>,
+  printHelp: () => void,
+  pickSubcommand: () => Promise<K>,
+): Promise<K>;
+export async function ensureSubcommand<K extends string>(
+  subcommand: string | undefined,
+  subcommands: Record<K, string>,
+  printHelp: () => void,
+): Promise<K | undefined>;
+export async function ensureSubcommand<K extends string>(
+  subcommand: string | undefined,
+  subcommands: Record<K, string>,
+  printHelp: () => void,
+  pickSubcommand?: () => Promise<K>,
+): Promise<K | undefined> {
+  if (subcommand !== undefined) {
+    if (subcommand in subcommands) return subcommand as K;
+    log.error(`Unknown subcommand: ${subcommand}`);
+    printHelp();
+    process.exit(1);
+  }
+  return pickSubcommand?.();
 }

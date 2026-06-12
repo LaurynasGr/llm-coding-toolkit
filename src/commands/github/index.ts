@@ -1,7 +1,7 @@
 import { parseArgs } from 'node:util';
 import { intro, outro, select, isCancel, cancel } from '@clack/prompts';
 import pc from 'picocolors';
-import { log, printCommandHelp, detectRepoFromGit } from '../../utils/index.ts';
+import { log, printCommandHelp, ensureSubcommand, detectRepoFromGit } from '../../utils/index.ts';
 import { readConfig, getTokenEntryForOwner } from '../../config.ts';
 import type { TokenEntry } from '../../config.ts';
 import { SUBCOMMANDS } from '../../commands.ts';
@@ -72,10 +72,14 @@ async function handleAuth() {
   outro(pc.green('Done'));
 }
 
-async function pickSubcommand(): Promise<string> {
+async function pickSubcommand() {
   const choice = await select({
     message: 'Select a command',
-    options: Object.entries(SUBCOMMANDS.github).map(([name, desc]) => ({ value: name, label: name, hint: desc })),
+    options: Object.entries(SUBCOMMANDS.github).map(([name, desc]) => ({
+      value: name as keyof typeof SUBCOMMANDS.github,
+      label: name,
+      hint: desc,
+    })),
   });
 
   if (isCancel(choice)) {
@@ -100,10 +104,7 @@ export async function github(args: string[]) {
     process.exit(0);
   }
 
-  let subcommand = positionals[0];
-  if (!subcommand || !(subcommand in SUBCOMMANDS.github)) {
-    subcommand = await pickSubcommand();
-  }
+  const subcommand = await ensureSubcommand(positionals[0], SUBCOMMANDS.github, printHelp, pickSubcommand);
 
   switch (subcommand) {
     case 'auth':

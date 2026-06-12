@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { tmpdir, platform } from 'node:os';
 import { parseArgs } from 'node:util';
 import pc from 'picocolors';
-import { log, printCommandHelp } from '../utils/index.ts';
+import { log, printCommandHelp, ensureSubcommand } from '../utils/index.ts';
 import { readMessages, addMessage, updateMessage, removeMessage } from '../messages.ts';
 import type { Message } from '../messages.ts';
 import { SUBCOMMANDS } from '../commands.ts';
@@ -242,7 +242,7 @@ export async function messages(args: string[]) {
     process.exit(0);
   }
 
-  const subcommand = positionals[0];
+  const subcommand = await ensureSubcommand(positionals[0], SUBCOMMANDS.messages, printHelp);
 
   switch (subcommand) {
     case 'add':
