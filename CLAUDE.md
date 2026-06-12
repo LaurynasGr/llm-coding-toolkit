@@ -7,7 +7,7 @@ Instructions for AI agents working on this codebase.
 - Do not include any code snippets in your "Here's what I did" summaries once you're finished with a task
 - Do not use `-C <path>` with git commands - just run `git` directly (the working directory is already correct)
 - When learning useful conventions or patterns from our interactions, add them to this CLAUDE.md file (not to the memory directory)
-
+- Only add a `Co-Authored-By: <agent>` trailer to a commit when the agent actually wrote the code or a comparable share of it (roughly 50/50 co-authorship). Do not add it when committing code the user wrote, even if the agent made minor adjustments to it.
 
 ## Running
 
