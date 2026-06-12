@@ -71,7 +71,7 @@ export async function ensureSubcommand<K extends string>(
   pickSubcommand?: () => Promise<K>,
 ): Promise<K | undefined> {
   if (subcommand !== undefined) {
-    if (subcommand in subcommands) return subcommand as K;
+    if (Object.hasOwn(subcommands, subcommand)) return subcommand as K;
     log.error(`Unknown subcommand: ${subcommand}`);
     printHelp();
     process.exit(1);
