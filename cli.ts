@@ -58,9 +58,9 @@ switch (command) {
     await prs(commandArgs);
     break;
   }
-  case 'gh-auth': {
-    const { ghAuth } = await import('./src/commands/gh-auth/index.ts');
-    await ghAuth(commandArgs);
+  case 'github': {
+    const { github } = await import('./src/commands/github/index.ts');
+    await github(commandArgs);
     break;
   }
   case 'autocomplete': {

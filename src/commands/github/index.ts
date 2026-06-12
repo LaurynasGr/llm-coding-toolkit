@@ -11,11 +11,11 @@ import { listTokens } from './list-tokens.ts';
 
 function printHelp() {
   printCommandHelp({
-    command: 'gh-auth',
+    command: 'github',
     usage: '[subcommand]',
-    description: 'Authenticate the GitHub CLI (gh) with a token stored by llmct.',
-    subcommands: SUBCOMMANDS['gh-auth'],
-    footer: 'Run without a subcommand to use the token matching the current repo.',
+    description: 'Authenticate the GitHub CLI (gh) and manage API tokens.',
+    subcommands: SUBCOMMANDS.github,
+    footer: 'Run without a subcommand to pick one interactively.',
   });
 }
 
@@ -24,7 +24,7 @@ async function pickTokenEntry(): Promise<TokenEntry> {
   const labels = Object.keys(config.tokens);
 
   if (labels.length === 0) {
-    log.error(['No tokens configured.', pc.dim('Run: llmct gh-auth add-token')]);
+    log.error(['No tokens configured.', pc.dim('Run: llmct github add-token')]);
     process.exit(1);
   }
 
@@ -41,26 +41,24 @@ async function pickTokenEntry(): Promise<TokenEntry> {
   return { label: choice, token: config.tokens[choice]! };
 }
 
-async function handleLogin(forcePick: boolean) {
+async function handleAuth() {
   intro(pc.bold('GitHub CLI Auth'));
 
   let entry: TokenEntry | null = null;
 
-  if (!forcePick) {
-    const slug = detectRepoFromGit();
-    if (!slug) {
-      log.warn('Could not detect a GitHub repository here. Pick a token instead.');
+  const slug = detectRepoFromGit();
+  if (!slug) {
+    log.warn('Could not detect a GitHub repository here. Pick a token instead.');
+  } else {
+    const [owner] = slug.split('/');
+    if (!owner) {
+      log.warn('Could not parse repository owner. Pick a token instead.');
     } else {
-      const [owner] = slug.split('/');
-      if (!owner) {
-        log.warn('Could not parse repository owner. Pick a token instead.');
+      entry = await getTokenEntryForOwner(owner);
+      if (entry) {
+        log.info(`Detected repo ${pc.cyan(slug)}.`);
       } else {
-        entry = await getTokenEntryForOwner(owner);
-        if (entry) {
-          log.info(`Detected repo ${pc.cyan(slug)}.`);
-        } else {
-          log.warn(`No token configured for owner '${owner}'. Pick a token instead.`);
-        }
+        log.warn(`No token configured for owner '${owner}'. Pick a token instead.`);
       }
     }
   }
@@ -74,7 +72,21 @@ async function handleLogin(forcePick: boolean) {
   outro(pc.green('Done'));
 }
 
-export async function ghAuth(args: string[]) {
+async function pickSubcommand(): Promise<string> {
+  const choice = await select({
+    message: 'Select a command',
+    options: Object.entries(SUBCOMMANDS.github).map(([name, desc]) => ({ value: name, label: name, hint: desc })),
+  });
+
+  if (isCancel(choice)) {
+    cancel('Cancelled.');
+    process.exit(0);
+  }
+
+  return choice;
+}
+
+export async function github(args: string[]) {
   const { values, positionals } = parseArgs({
     args,
     options: {
@@ -88,17 +100,20 @@ export async function ghAuth(args: string[]) {
     process.exit(0);
   }
 
-  const subcommand = positionals[0];
+  let subcommand = positionals[0];
+  if (!subcommand || !(subcommand in SUBCOMMANDS.github)) {
+    subcommand = await pickSubcommand();
+  }
 
   switch (subcommand) {
+    case 'auth':
+      await handleAuth();
+      break;
     case 'add-token':
       await addToken();
       break;
     case 'list-tokens':
       await listTokens();
-      break;
-    default:
-      await handleLogin(subcommand === 'pick');
       break;
   }
 }
