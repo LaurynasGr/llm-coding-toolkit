@@ -44,31 +44,35 @@ function openEditor(initialContent: string): string | null {
   }
 }
 
-function copyToClipboard(text: string): boolean {
-  const plat = platform();
+function isWsl(): boolean {
+  if (process.env.WSL_DISTRO_NAME || process.env.WSL_INTEROP) return true;
   try {
-    if (plat === 'darwin') {
-      execSync('pbcopy', { input: text });
-    } else if (plat === 'linux') {
-      // WSL detection: only fall back to xclip if clip.exe is not found
-      try {
-        execSync('clip.exe', { input: text });
-      } catch (err) {
-        if ((err as { status?: number })?.status === 127) {
-          execSync('xclip -selection clipboard', { input: text });
-        } else {
-          throw err;
-        }
-      }
-    } else if (plat === 'win32') {
-      execSync('clip.exe', { input: text });
-    } else {
-      return false;
-    }
-    return true;
+    return readFileSync('/proc/version', 'utf-8').toLowerCase().includes('microsoft');
   } catch {
     return false;
   }
+}
+
+function copyToClipboard(text: string): boolean {
+  // Ignore stdout/stderr: tools like xclip fork a background holder process
+  // that keeps inherited pipes open, which would make execSync hang forever.
+  const tryCopy = (command: string): boolean => {
+    try {
+      execSync(command, { input: text, stdio: ['pipe', 'ignore', 'ignore'] });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const plat = platform();
+  if (plat === 'darwin') return tryCopy('pbcopy');
+  if (plat === 'win32') return tryCopy('clip.exe');
+  if (plat === 'linux') {
+    if (isWsl()) return tryCopy('clip.exe');
+    return tryCopy('wl-copy') || tryCopy('xclip -selection clipboard') || tryCopy('xsel --clipboard --input');
+  }
+  return false;
 }
 
 function parseTemplateVars(template: string) {
